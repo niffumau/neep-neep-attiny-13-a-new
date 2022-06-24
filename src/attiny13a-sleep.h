@@ -2,8 +2,8 @@
 
 
 
-#define IS_BUZZER			// Define if its a buzzer
-
+//#define IS_BUZZER			// Define if its a buzzer
+#define BEEP_EVERY_CYCLE
 
 
 // pins
@@ -32,7 +32,8 @@
 //int RANDOM_SLEEP_MAX = 525; // 70 mins
 /// multiples of 8 seconds
 
-#define SLEEP_FACTOR 8								// what we count intervals in
+#define SLEEP_FACTOR 8								// what we count intervals in, should be 8
+
 
 
 uint16_t RANDOM_SLEEP_MIN = 1;			/// was 7
