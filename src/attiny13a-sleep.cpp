@@ -320,7 +320,7 @@ static void _setuptone(void){
 
 static void _tone(uint8_t octave, uint8_t note)
 {
-	uint8_t OCR0A_value, OCR0B_value;
+	uint8_t OCR0A_value, OCR0B_value, _duty;
 
 	uint32_t ret;
 	note_t *val;
@@ -370,9 +370,15 @@ Because it is the PWM duty. */
 	OCR0A_value = val->OCRxn - 1;
 
 
+
 	OCR0B_value = OCR0A_value/2;		// I think this is 50% duty cycle ??
 
 
+	uint16_t _temp;
+	_duty = 50;
+	//_temp = (OCR0A_value * _duty)/100;
+	//OCR0B_value =	_temp;				// _duty is the duty cycle out of 255.
+	OCR0B_value = (OCR0A_value * _duty)/100;
 
 	OCR0A = OCR0A_value;
 	OCR0B = OCR0B_value;
