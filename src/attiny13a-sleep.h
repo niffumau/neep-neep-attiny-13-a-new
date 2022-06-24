@@ -2,8 +2,8 @@
 
 
 
-//#define IS_BUZZER			// Define if its a buzzer
-#define BEEP_EVERY_CYCLE
+#define IS_BUZZER			// Define if its a buzzer
+//#define BEEP_EVERY_CYCLE
 
 
 // pins
@@ -37,7 +37,7 @@
 
 
 uint16_t RANDOM_SLEEP_MIN = 1;			/// was 7
-uint16_t RANDOM_SLEEP_MAX = 12;		// 2 is very regular, was 30
+uint16_t RANDOM_SLEEP_MAX = 6;		// 2 is very regular, was 30
 
 
 

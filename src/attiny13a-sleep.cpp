@@ -378,7 +378,8 @@ Because it is the PWM duty. */
 	_duty = 50;
 	//_temp = (OCR0A_value * _duty)/100;
 	//OCR0B_value =	_temp;				// _duty is the duty cycle out of 255.
-	OCR0B_value = (OCR0A_value * _duty)/100;
+
+	OCR0B_value = (OCR0A_value * _duty )/100;
 
 	OCR0A = OCR0A_value;
 	OCR0B = OCR0B_value;
