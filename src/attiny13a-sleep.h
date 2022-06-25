@@ -2,8 +2,10 @@
 
 
 
-#define IS_BUZZER			// Define if its a buzzer
-//#define BEEP_EVERY_CYCLE
+//#define IS_BUZZER			// Define if its a buzzer
+#define BEEP_EVERY_CYCLE
+
+#define CHIRPS                      3       // Number of chirps
 
 
 // pins

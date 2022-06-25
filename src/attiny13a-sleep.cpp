@@ -286,28 +286,37 @@ void check_random(uint16_t _return) {
 static void _setuptone(void){
 
 
-		pinMode(BUZZER_PIN, OUTPUT);
-		//PORTB = 0b00000000; // set all pins to LOW
+	pinMode(BUZZER_PIN, OUTPUT);
+	//PORTB = 0b00000000; // set all pins to LOW
 
-		// Set Timer Mode to Fast PWM
-		// Below, it looks like they are just setting WGM01 to 1,, the manual seems to say that WGM01 and WGM00 should be 1 ?
+	// Set Timer Mode to Fast PWM
+	// Below, it looks like they are just setting WGM01 to 1,, the manual seems to say that WGM01 and WGM00 should be 1 ?
 
-		TCCR0A |= (1<<WGM01); // set timer mode to Fast PWM
-		//TCCR0A |= (1<<WGM00);	// I believe I should be setting this aswell????
-		
-
-
-		// Select which pin connects to Timer 0
-		//TCCR0A |= (1<<COM0A0); // connect PWM pin to Channel A of Timer0
-
-		// So the COM0B1 and COM0B0 contyrol what it does... 
-		// both 0 means disconnected
-  		TCCR0A |= _BV(COM0B0); // connect PWM pin to Channel A of Timer0... PB1 ?
-
-		// fucking really doesn't make sense
+	TCCR0A |= (1<<WGM01); // set timer mode to Fast PWM
+	//TCCR0A |= (1<<WGM00);	// I believe I should be setting this aswell????
 
 
+	// fucking really doesn't make sense
 
+	// notes https://forum.arduino.cc/t/attiny13a-fast-pwm/855861
+	/* When WGM02, WGM01, WGM00 is set, the TOP value of the timer is controlled by OCRA.
+	That is, the timer count increments from 0 to the value of OCR2A and returns to 0.
+	This allows you to control the frequency, but OCRB must be used for waveform output.
+	The OCRB value must be between 0 and OCRA.
+	Because it is the PWM duty. */
+
+	// Following that
+	TCCR0A |= ((1<<WGM01)|(1<<WGM00)); // set fast PWM mode 7 - page 79 - uses OCR0A for TOP, PWM signal comes out on OCR0B
+	TCCR0B |= (1<<WGM02); // to use TOP as OCR0A rather than 0xFF
+	TCCR0A |= (1<<COM0B1)|(1<<COM0B0); // define inverted
+
+
+	// Select which pin connects to Timer 0
+	//TCCR0A |= (1<<COM0A0); // connect PWM pin to Channel A of Timer0
+
+	// So the COM0B1 and COM0B0 contyrol what it does... 
+	// both 0 means disconnected
+	TCCR0A |= _BV(COM0B0); // connect PWM pin to Channel A of Timer0... PB1 ?
 }
 #endif
 
@@ -319,6 +328,54 @@ static void _setuptone(void){
  */
 
 static void _tone(uint8_t octave, uint8_t note)
+{
+	uint8_t OCR0A_value, OCR0B_value, _duty;
+
+	uint32_t ret;
+	note_t *val;
+	ret = pgm_read_word_near((uint8_t *)&octaves + sizeof(octave_t) * octave + sizeof(note_t) * note);
+	val = (note_t *)&ret;
+
+
+
+	// https://electronics.stackexchange.com/questions/387383/attiny13a-cant-generate-software-pwm-with-ctc-mode
+
+
+
+	// So, TCCR0B is TCCR0B AND...
+	// Setting the prescaler...
+	// so we take TCCR0B as it currently stands, I think the ~ makes it zero the prescaler bits first
+	// then we OR it with what prescaler bits we want
+	// so set prescaler then set the count...
+
+
+	//TCCR0B = (TCCR0B & ~((1<<CS02)|(1<<CS01)|(1<<CS00))) | val->N;
+	TCCR0B &= ~((1<<CS02)|(1<<CS01)|(1<<CS00));		// Clear the Timer.... probalby n ot needed
+	TCCR0B |= val->N;
+
+//	TCCR0B = (TCCR0B & ~((1<<CS02)|(1<<CS01)|(1<<CS00))) | N_8;		// Set Prescaler	/// not sure about this one
+
+	OCR0A_value = val->OCRxn - 1;
+
+	uint16_t _temp;
+	_duty = 50;
+	//_temp = (OCR0A_value * _duty)/100;
+	//OCR0B_value =	_temp;				// _duty is the duty cycle out of 255.
+	//OCR0B_value = OCR0A_value/2;		// I think this is 50% duty cycle ??
+	OCR0B_value = (OCR0A_value * _duty )/100;
+
+	OCR0A = OCR0A_value;		// set count
+	OCR0B = OCR0B_value;		// set count for duty, so duty = OCR0B/OCR0A
+
+
+	
+
+
+
+}
+#endif
+
+static void _tone_OLD(uint8_t octave, uint8_t note)
 {
 	uint8_t OCR0A_value, OCR0B_value, _duty;
 
@@ -343,13 +400,6 @@ Because it is the PWM duty. */
 
 
 
-	TCCR0A |= ((1<<WGM01)|(1<<WGM00)); // set fast PWM mode 7 - page 79 - uses OCR0A for TOP, PWM signal comes out on OCR0B
-	TCCR0B |= (1<<WGM02); // to use TOP as OCR0A rather than 0xFF
-	TCCR0A |= (1<<COM0B1)|(1<<COM0B0); // define inverted
-
-
-
-
 	// So, TCCR0B is TCCR0B AND...
 	// Setting the prescaler...
 	// so we take TCCR0B as it currently stands, I think the ~ makes it zero the prescaler bits first
@@ -357,9 +407,9 @@ Because it is the PWM duty. */
 	// so set prescaler then set the count...
 
 
-	TCCR0B = (TCCR0B & ~((1<<CS02)|(1<<CS01)|(1<<CS00))) | val->N;
-
-
+	//TCCR0B = (TCCR0B & ~((1<<CS02)|(1<<CS01)|(1<<CS00))) | val->N;
+	TCCR0B &= ~((1<<CS02)|(1<<CS01)|(1<<CS00));		// Clear the Timer.... probalby n ot needed
+	TCCR0B |= val->N;
 
 //	TCCR0B = (TCCR0B & ~((1<<CS02)|(1<<CS01)|(1<<CS00))) | N_8;		// Set Prescaler	/// not sure about this one
 
@@ -374,6 +424,8 @@ Because it is the PWM duty. */
 	OCR0B_value = OCR0A_value/2;		// I think this is 50% duty cycle ??
 
 
+
+
 	uint16_t _temp;
 	_duty = 50;
 	//_temp = (OCR0A_value * _duty)/100;
@@ -383,6 +435,8 @@ Because it is the PWM duty. */
 
 	OCR0A = OCR0A_value;
 	OCR0B = OCR0B_value;
+
+
 	// Can I use OCR0B to create the duty cycle???
 	// so i beleive i can probably set OCR0B to half and get 50%? might need to scope this
 
@@ -399,7 +453,31 @@ Because it is the PWM duty. */
 
 
 }
-#endif
+
+
+
+static void _tone_250(uint8_t octave, uint8_t note)
+{
+	uint8_t OCR0A_value, OCR0B_value, _duty;
+
+	uint32_t ret;
+	note_t *val;
+
+	ret = pgm_read_word_near((uint8_t *)&octaves + sizeof(octave_t) * octave + sizeof(note_t) * note);
+	val = (note_t *)&ret;
+
+
+
+	TCCR0A |= ((1<<WGM01)|(1<<WGM00)); // set fast PWM mode 7 - page 79 - uses OCR0A for TOP, PWM signal comes out on OCR0B
+	TCCR0B |= (1<<WGM02); // to use TOP as OCR0A rather than 0xFF
+	TCCR0A |= (1<<COM0B1)|(1<<COM0B0); // define inverted
+
+	TCCR0B &= ~((1<<CS02)|(1<<CS01)|(1<<CS00));		// Clear the Timer.... probalby n ot needed
+	TCCR0B |= val->N;								// Set the timer value
+
+
+
+}
 
 /***************************************************
  *  Stop tones
@@ -462,17 +540,22 @@ void _playtones(void){
 		}
 	}*/
 
-	// new one thats faster
-	for (int i = 4; i < 5; ++i) {
-		//led_blink(LED_GREEN,i+1);
-		for (int j = 0; j < 12; j += 4) {
-			_tone(i, j);
-			_delay_ms(40);
+	for (int g=0;g<2;g++) {
+		_setuptone();
+		for	(int n=0;n<CHIRPS;n++) {
+			// new one thats faster
+			for (int i = 3; i < 4; ++i) {
+				//led_blink(LED_GREEN,i+1);
+				for (int j = 0; j < 12; j += 4) {
+					_tone(i, j);
+					_delay_ms(40);
+				}
+			}
+
 		}
+		stop();
+		_delay_ms(200);
 	}
-
-
-
 
 	/*
 	_tone(4, 7);	//note_C 
