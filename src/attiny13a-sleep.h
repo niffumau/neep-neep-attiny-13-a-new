@@ -3,10 +3,11 @@
 
 
 //#define IS_BUZZER			// Define if its a buzzer
-#define BEEP_EVERY_CYCLE
+//#define BEEP_EVERY_CYCLE
 
 #define CHIRPS                      3       // Number of chirps
 
+//#define FIXED_INTERVAL              2
 
 // pins
 #define	BUZZER_PIN	                PB1
@@ -34,12 +35,12 @@
 //int RANDOM_SLEEP_MAX = 525; // 70 mins
 /// multiples of 8 seconds
 
-#define SLEEP_FACTOR 8								// what we count intervals in, should be 8
+#define SLEEP_FACTOR 7								// what we count intervals in, should be 8
 
 
 
 uint16_t RANDOM_SLEEP_MIN = 1;			/// was 7
-uint16_t RANDOM_SLEEP_MAX = 6;		// 2 is very regular, was 30
+uint16_t RANDOM_SLEEP_MAX = 4;		// 2 is very regular, was 30
 
 
 
@@ -60,11 +61,11 @@ uint16_t RANDOM_SLEEP_MAX = 6;		// 2 is very regular, was 30
 
 
 
-#define	N_1	(_BV(CS00))
+#define	N_1	(_BV(CS00))                 // No Prescaling
 #define	N_8	(_BV(CS01))
 #define	N_64	(_BV(CS01)|_BV(CS00))
 #define	N_256	(_BV(CS02))
-#define	N_1024	(_BV(CS02)|_BV(CS00))
+#define	N_1024	(_BV(CS02)|_BV(CS00))   // clk/1024 from prescaler
 
 
 

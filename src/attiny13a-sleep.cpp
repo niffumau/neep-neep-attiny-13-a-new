@@ -43,10 +43,31 @@ int INITIAL_BEEP_COUNT = 3;   // number of "test" beeps before we go into the re
 
 
 
+/* We then just need a table of divisors for the notes within one octave. To calculate the divisor for a given note frequency we first work out:
 
+divisor = clock / frequency
+
+For example, C4 (middle C) is 261.63Hz, so we get:
+
+divisor = 1000000 / 261.63
+
+in our case thats
+divisor = 1 200 000 / 261.63 = 4586.62
+but thats way more than 256, so divide by 2
+4586.62 / 2 = 2293.3 
+too large, divide by 2 again
+1146, too large again, divide by 2
+too large..
+options are 1, 8, 64,
+divide by 8, and its 71.6
+
+
+*/
 
 //uint8_t mcucr1, mcucr2;
 
+int notes[12]={239,225,213,201,190,179,169,159,150,142,134,127};
+//int notes[12]={72,225,213,201,190,179,169,159,150,142,134,127};    
 
 
 
@@ -71,8 +92,8 @@ typedef struct s_octave {
 } octave_t;
 
 // these all need to be multiplied by 8 because the clock is 8x faster
-
-PROGMEM const octave_t octaves[8] = {
+//24 bytes per octave
+PROGMEM const octave_t octaves[6] = {
 	{ // octave 0
 	.note_C = {142, N_256}, // 16.35 Hz
 	.note_CS = {134, N_256}, // 17.32 Hz
@@ -156,7 +177,7 @@ PROGMEM const octave_t octaves[8] = {
 	.note_A = {84, N_8}, // 440.00 Hz
 	.note_AS = {79, N_8}, // 466.16 Hz
 	.note_B = {75, N_8} // 493.88 Hz
-	},
+	}/*,
 	{  // octave 6
 	.note_C = {71, N_8}, // 1046.50 Hz
 	.note_CS = {67, N_8}, // 1108.73 Hz
@@ -184,7 +205,7 @@ PROGMEM const octave_t octaves[8] = {
 	.note_A = {20, N_8}, // 3520.00 Hz
 	.note_AS = {19, N_8}, // 3729.31 Hz
 	.note_B = {18, N_8} // 3951.07 Hz
-	}
+	}*/
 };
 
 
@@ -285,15 +306,14 @@ void check_random(uint16_t _return) {
 #ifndef IS_BUZZER	
 static void _setuptone(void){
 
-
 	pinMode(BUZZER_PIN, OUTPUT);
 	//PORTB = 0b00000000; // set all pins to LOW
 
 	// Set Timer Mode to Fast PWM
 	// Below, it looks like they are just setting WGM01 to 1,, the manual seems to say that WGM01 and WGM00 should be 1 ?
 
-	TCCR0A |= (1<<WGM01); // set timer mode to Fast PWM
-	//TCCR0A |= (1<<WGM00);	// I believe I should be setting this aswell????
+//	 // set timer mode to Fast PWM
+	
 
 
 	// fucking really doesn't make sense
@@ -306,9 +326,16 @@ static void _setuptone(void){
 	Because it is the PWM duty. */
 
 	// Following that
-	TCCR0A |= ((1<<WGM01)|(1<<WGM00)); // set fast PWM mode 7 - page 79 - uses OCR0A for TOP, PWM signal comes out on OCR0B
-	TCCR0B |= (1<<WGM02); // to use TOP as OCR0A rather than 0xFF
+	TCCR0A |= ((1<<WGM02)|(1<<WGM01)|(1<<WGM00));		// this should really be mode 7
+//	TCCR0A |= (1<<WGM00);	// Waveform generator as PWM, Phase correct
+
+//	TCCR0A |= ((1<<WGM01)|(1<<WGM00)); // set fast PWM mode 7 - page 79 - uses OCR0A for TOP, PWM signal comes out on OCR0B
 	TCCR0A |= (1<<COM0B1)|(1<<COM0B0); // define inverted
+
+	TCCR0B |= (1<<WGM02); // to use TOP as OCR0A rather than 0xFF
+	
+
+
 
 
 	// Select which pin connects to Timer 0
@@ -349,9 +376,9 @@ static void _tone(uint8_t octave, uint8_t note)
 	// so set prescaler then set the count...
 
 
-	//TCCR0B = (TCCR0B & ~((1<<CS02)|(1<<CS01)|(1<<CS00))) | val->N;
-	TCCR0B &= ~((1<<CS02)|(1<<CS01)|(1<<CS00));		// Clear the Timer.... probalby n ot needed
-	TCCR0B |= val->N;
+	TCCR0B = (TCCR0B & ~((1<<CS02)|(1<<CS01)|(1<<CS00))) | val->N;
+	//TCCR0B &= ~((1<<CS02)|(1<<CS01)|(1<<CS00));		// Clear the Timer.... probalby n ot needed
+	//TCCR0B |= val->N;
 
 //	TCCR0B = (TCCR0B & ~((1<<CS02)|(1<<CS01)|(1<<CS00))) | N_8;		// Set Prescaler	/// not sure about this one
 
@@ -373,6 +400,45 @@ static void _tone(uint8_t octave, uint8_t note)
 
 
 }
+
+static void _tonenew(uint8_t _count, uint8_t _prescaler,uint16_t _delay)
+{
+	uint8_t OCR0A_value, OCR0B_value, _duty;
+
+	// So, TCCR0B is TCCR0B AND...
+	// Setting the prescaler...
+	// so we take TCCR0B as it currently stands, I think the ~ makes it zero the prescaler bits first
+	// then we OR it with what prescaler bits we want
+	// so set prescaler then set the count...
+
+
+	TCCR0B = (TCCR0B & ~((1<<CS02)|(1<<CS01)|(1<<CS00))) | _prescaler;
+
+
+	//TCCR0B &= ~((1<<CS02)|(1<<CS01)|(1<<CS00));		// Clear the Timer.... probalby n ot needed
+	//TCCR0B |= val->N;
+
+//	TCCR0B = (TCCR0B & ~((1<<CS02)|(1<<CS01)|(1<<CS00))) | N_8;		// Set Prescaler	/// not sure about this one
+
+	OCR0A_value = _count;
+
+	uint16_t _temp;
+	_duty = 50;
+	//_temp = (OCR0A_value * _duty)/100;
+	//OCR0B_value =	_temp;				// _duty is the duty cycle out of 255.
+	OCR0B_value = OCR0A_value/2;		// I think this is 50% duty cycle ??
+	//OCR0B_value = (OCR0A_value * _duty )/100;
+
+	OCR0A = OCR0A_value;		// set count
+	OCR0B = OCR0B_value;		// set count for duty, so duty = OCR0B/OCR0A
+
+
+	
+
+	_delay_ms(_delay);
+
+}
+
 #endif
 
 static void _tone_OLD(uint8_t octave, uint8_t note)
@@ -416,25 +482,20 @@ Because it is the PWM duty. */
 
 
 
-  	//OCR0A = val->OCRxn - 1; // set the OCRnx
-	OCR0A_value = val->OCRxn - 1;
-
-
-
-	OCR0B_value = OCR0A_value/2;		// I think this is 50% duty cycle ??
-
-
+  	OCR0A = val->OCRxn - 1; // set the OCRnx
+	//OCR0A_value = val->OCRxn - 1;
 
 
 	uint16_t _temp;
 	_duty = 50;
 	//_temp = (OCR0A_value * _duty)/100;
 	//OCR0B_value =	_temp;				// _duty is the duty cycle out of 255.
+	//OCR0B_value = OCR0A_value/2;		// I think this is 50% duty cycle ??
+	//OCR0B_value = (OCR0A * _duty )/100;
 
-	OCR0B_value = (OCR0A_value * _duty )/100;
-
-	OCR0A = OCR0A_value;
-	OCR0B = OCR0B_value;
+	//OCR0A = OCR0A_value;
+	OCR0B = (OCR0A * _duty )/100;
+	//OCR0B = OCR0B_value;
 
 
 	// Can I use OCR0B to create the duty cycle???
@@ -455,7 +516,7 @@ Because it is the PWM duty. */
 }
 
 
-
+/*
 static void _tone_250(uint8_t octave, uint8_t note)
 {
 	uint8_t OCR0A_value, OCR0B_value, _duty;
@@ -477,7 +538,7 @@ static void _tone_250(uint8_t octave, uint8_t note)
 
 
 
-}
+}*/
 
 /***************************************************
  *  Stop tones
@@ -488,18 +549,27 @@ static void _tone_250(uint8_t octave, uint8_t note)
 static void stop(void)
 {
 
-	TCCR0B &= ~((1<<CS02)|(1<<CS01)|(1<<CS00)); // stop the timer
+	TCCR0B &= ~((1<<CS02)|(1<<CS01)|(1<<CS00)); // stop the timer.... This should absoloutly stop the timer
 	
 	// TCCR1 = 0x90;              // stop the counter		// dont' think this works...
   
   	// maybe this is a better stop the couter thing..
-  	TCCR0A = 0; // stop the counter    // fuck knows why... fuck knos why the other one dind't work
+//  	TCCR0A = 0; // stop the counter    // fuck knows why... fuck knos why the other one dind't work				////////////////disable this if it stops working
 	//pinMode(BUZZER_PIN, OUTPUT);
 
 	digitalWrite(BUZZER_PIN, LOW); // set the output to low
 }
 
 #endif
+
+/*
+void _playchirp(void){
+	_setuptone();
+	_tonenew(247, N_64,4000);
+	stop();
+}*/
+
+
 /***************************************************
  *  Play Tones
  ***************************************************
@@ -517,9 +587,47 @@ void _playtones(void){
 	led_on(BUZZER_PIN);
 	_delay_ms(100);
 	led_off(BUZZER_PIN);
-#else
+#else						// Otherwise we are using PWM
 
+	// 9.6MHz internal oscilator...
+
+	// test long tone...
 	_setuptone();			// Set up the attiny to play tones
+
+	// Checking frequencies
+	//for (int i = 10;)
+
+//	_tonenew(100, N_1024,4000);	//		// doesn't work very well
+//	_tonenew(200, N_1024,4000);	//		// doesn't work very well
+
+	
+	
+	//_tonenew(247, N_64,4000);	//	2972
+	//_tonenew(246, N_64,4000);	//	2972
+	//_tonenew(244, N_64,4000);	//	3015
+	//_tonenew(240, N_64,4000);	//	3058 	
+
+	//_tonenew(128, N_256,4000);	//	
+	//_tonenew(200, N_256,4000);	//		
+	//_tonenew(notes[0], N_8,4000);
+
+	//_tonenew(72, N_8,4000);
+
+/*
+	for (uint8_t i = 0;i<12;i++) {
+		_tonenew(notes[i], N_64,400);
+	}
+*/
+/*
+	for (uint8_t i = 250;i<255;i-=20) {
+		_tonenew(i, N_64,400);
+	}
+/*
+
+	for (uint8_t i = 250;i<255;i-=20) {
+		_tonenew(i, N_256,400);
+	}
+*/
 
 /*
 	for (int j=7;j>0;j--) {
@@ -528,8 +636,8 @@ void _playtones(void){
 			_delay_ms(400);
 		}
 		_delay_ms(500);
-	}
-	*/
+	}*/
+
 
 /*	// this one works great
 	for (int i = 3; i < 5; ++i) {
@@ -540,18 +648,19 @@ void _playtones(void){
 		}
 	}*/
 
-	for (int g=0;g<2;g++) {
-		_setuptone();
-		for	(int n=0;n<CHIRPS;n++) {
+	for (uint8_t g=0;g<2;g++) {
+		_setuptone();			// Set up the attiny to play tones
+		for	(uint8_t n=0;n<CHIRPS;n++) {
 			// new one thats faster
-			for (int i = 3; i < 4; ++i) {
+			for (uint8_t j = 4; j < 5; ++j) {
 				//led_blink(LED_GREEN,i+1);
-				for (int j = 0; j < 12; j += 4) {
-					_tone(i, j);
+				for (int i = 0; i < 12; i += 4) {
+					_tone(j, i);
 					_delay_ms(40);
 				}
+				//_delay_ms(1000);
 			}
-
+			//_delay_ms(100);
 		}
 		stop();
 		_delay_ms(200);
@@ -619,6 +728,7 @@ guessagain:
 	_return =   lfsr16_next(random_number);
 	_return =   _return % _modulus;
 	_return += _min;
+
 
 	if (_return < _min) {
 		led_blink(LED_RED,4);
@@ -714,17 +824,8 @@ void updateOCR(uint8_t var) {
 void system_sleep(byte b) {   
 	ACSR = ADMUX = ADCSRA = 0;  
 	ACSR |= (1 << ACD);                  // Analog comparator off
-	//ACSR |= _BV(ACD);                         //disable the analog comparator
 	ADCSRA &= ~(1<<ADEN);                // switch Analog to Digitalconverter OFF
 	PRR |= (1<<PRTIM0) | (1<<PRADC);
-
-
-	ADCSRA &= ~(1<<ADEN);		// Disable the ADC converter
-	//ADCSRA &= ~_BV(ADEN);                     //disable ADC
-    
-
-
-	//if (b != SLEEP_FOREVER) updateWatchDog(b);
 
 	updateWatchDog(SLEEP_8SEC);
 		
@@ -764,13 +865,13 @@ void setup() {
 	pinMode(BUZZER_PIN, OUTPUT);
 
 	led_setup();
-	led_blink(LED_RED,2);
+//	led_blink(LED_RED,2);
 
 	led_status(1,1);
 	  
 	_playtones();
 
-	//led_status(1,1);
+
 }
 
 
@@ -779,11 +880,6 @@ void setup() {
  *******************************************************************************************************************************/
 
 void loop() {
-
-	//led_status(1,1);
-	//goToSleep();	// Should be in 8 second blocks
-
-	//goToSleep_new(200);
 
 	led_blink(LED_GREEN,1);
 
@@ -814,8 +910,12 @@ void loop() {
 		//countSleepLimit = 8;
 		//countSleepLimit = random(RANDOM_SLEEP_MIN, RANDOM_SLEEP_MAX + 1);			// this one takes up shitloads of flash
 		//countSleepLimit = _randomsystem( RANDOM_SLEEP_MIN*SLEEP_FACTOR, RANDOM_SLEEP_MAX*SLEEP_FACTOR + 1);		// doesn't take up as much but fuck me
+		#ifdef FIXED_INTERVAL
+		countSleepLimit = FIXED_INTERVAL
+		#else
 		countSleepLimit = _random( RANDOM_SLEEP_MIN*SLEEP_FACTOR, RANDOM_SLEEP_MAX*SLEEP_FACTOR + 1) ;
-		check_random(countSleepLimit);
+		#endif
+		//check_random(countSleepLimit);
 	}
 
 
