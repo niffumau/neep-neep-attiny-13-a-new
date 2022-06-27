@@ -557,6 +557,9 @@ static void stop(void)
 //  	TCCR0A = 0; // stop the counter    // fuck knows why... fuck knos why the other one dind't work				////////////////disable this if it stops working
 	//pinMode(BUZZER_PIN, OUTPUT);
 
+//	TCCR0A |= _BV(COM0B0);	//////////maybe this ???
+	TCCR0A |= ~(1<<COM0B0);
+
 	digitalWrite(BUZZER_PIN, LOW); // set the output to low
 }
 
@@ -889,17 +892,7 @@ void loop() {
 	countSleep++;
 #endif
 
-	if ((countSleep < countSleepLimit) ) {
-		//led_status(1,1);
-		//led_blink(LED_GREEN,1);
-		//led_blink(LED_GREEN,countSleep);
-	//	sei();			//ensure interrupts enabled so we can wake up again
-//		sleep_mode();	//wake up here, disable interrupts
-//		cli();			//wake up here, disable interrupts
-
-
-	} else {
-		
+	if ( !(countSleep < countSleepLimit) )	{
 		if (countSleepLimit != 0) {		// if its not our first run
 			_playtones();
 		} else {
@@ -907,17 +900,13 @@ void loop() {
 		}
 
 		countSleep = 0;	// reset countsleep
-		//countSleepLimit = 8;
-		//countSleepLimit = random(RANDOM_SLEEP_MIN, RANDOM_SLEEP_MAX + 1);			// this one takes up shitloads of flash
-		//countSleepLimit = _randomsystem( RANDOM_SLEEP_MIN*SLEEP_FACTOR, RANDOM_SLEEP_MAX*SLEEP_FACTOR + 1);		// doesn't take up as much but fuck me
-		#ifdef FIXED_INTERVAL
+#ifdef FIXED_INTERVAL
 		countSleepLimit = FIXED_INTERVAL
-		#else
+#else
 		countSleepLimit = _random( RANDOM_SLEEP_MIN*SLEEP_FACTOR, RANDOM_SLEEP_MAX*SLEEP_FACTOR + 1) ;
-		#endif
+#endif
 		//check_random(countSleepLimit);
 	}
-
 
 	system_sleep(SLEEP_8SEC);
 	
