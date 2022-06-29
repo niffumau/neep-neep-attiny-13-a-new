@@ -40,7 +40,7 @@
 
 
 uint16_t RANDOM_SLEEP_MIN = 1;			/// was 7
-uint16_t RANDOM_SLEEP_MAX = 4;		// 2 is very regular, was 30
+uint16_t RANDOM_SLEEP_MAX = 16;		// 2 is very regular, was 30
 
 
 

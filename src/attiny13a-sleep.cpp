@@ -554,11 +554,13 @@ static void stop(void)
 	// TCCR1 = 0x90;              // stop the counter		// dont' think this works...
   
   	// maybe this is a better stop the couter thing..
-//  	TCCR0A = 0; // stop the counter    // fuck knows why... fuck knos why the other one dind't work				////////////////disable this if it stops working
+
 	//pinMode(BUZZER_PIN, OUTPUT);
 
-//	TCCR0A |= _BV(COM0B0);	//////////maybe this ???
-	TCCR0A |= ~(1<<COM0B0);
+//	TCCR0A |= _BV(COM0B0);	//////////maybe this ??? NOPE, not just that
+//	TCCR0A |= ~((1<<COM0B0)|(1<<COM0B1));	// maybe both of these?  NOPE
+
+  	TCCR0A = 0; // stop the counter    // fuck knows why... fuck knos why the other one dind't work				////////////////disable this if it stops working
 
 	digitalWrite(BUZZER_PIN, LOW); // set the output to low
 }
@@ -703,7 +705,7 @@ long countSleepLimit=0;
  * 
  */
 
-//#define USE_RANDOM_SEED
+#define USE_RANDOM_SEED		// this doesn't work because we don't have the random read 
 
 #ifdef    USE_RANDOM_SEED
 #define    RANDOM_SEED_ADDRESS    0x00
@@ -716,8 +718,15 @@ static uint16_t lfsr16_next(uint16_t n) {
 
 void random_init(uint16_t seed) {
 #ifdef USE_RANDOM_SEED
-    random_number = lfsr16_next(eeprom_read_word((uint16_t *)RANDOM_SEED_ADDRESS) ^ seed);
-    eeprom_write_word((uint16_t *)0, random_number);
+    //random_number = lfsr16_next(eeprom_read_word((uint16_t *)RANDOM_SEED_ADDRESS) ^ seed);
+    //eeprom_write_word((uint16_t *)0, random_number);
+
+	pinMode(PB3, INPUT);
+	uint8_t Rand1 = analogRead(PB3);
+	uint8_t Rand2 = analogRead(PB3);
+
+	random_number = Rand1 + (Rand1<<8);
+
 #else
     random_number = seed;
 #endif    /* !USE_RANDOM_SEED */
