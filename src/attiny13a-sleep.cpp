@@ -385,7 +385,7 @@ static void _tone(uint8_t octave, uint8_t note)
 	OCR0A_value = val->OCRxn - 1;
 
 	uint16_t _temp;
-	_duty = 50;
+	_duty = 100 - DUTY_CYCLE;
 	//_temp = (OCR0A_value * _duty)/100;
 	//OCR0B_value =	_temp;				// _duty is the duty cycle out of 255.
 	//OCR0B_value = OCR0A_value/2;		// I think this is 50% duty cycle ??
@@ -441,80 +441,6 @@ static void _tonenew(uint8_t _count, uint8_t _prescaler,uint16_t _delay)
 
 #endif
 
-static void _tone_OLD(uint8_t octave, uint8_t note)
-{
-	uint8_t OCR0A_value, OCR0B_value, _duty;
-
-	uint32_t ret;
-	note_t *val;
-	ret = pgm_read_word_near((uint8_t *)&octaves + sizeof(octave_t) * octave + sizeof(note_t) * note);
-	val = (note_t *)&ret;
-
-// notes https://forum.arduino.cc/t/attiny13a-fast-pwm/855861
-/* When WGM02, WGM01, WGM00 is set, the TOP value of the timer is controlled by OCRA.
-That is, the timer count increments from 0 to the value of OCR2A and returns to 0.
-This allows you to control the frequency, but OCRB must be used for waveform output.
-The OCRB value must be between 0 and OCRA.
-Because it is the PWM duty. */
-
-	// Following that
-//	TCCR0A |= ((1<<WGM01)|(1<<WGM00)); // set fast PWM mode 7 - page 79 - uses OCR0A for TOP, PWM signal comes out on OCR0B
-//	TCCR0B |= (1<<WGM02); // to use TOP as OCR0A rather than 0xFF
-//	TCCR0A |= (1<<COM0B1)|(1<<COM0B0); // define inverted
-
-	// https://electronics.stackexchange.com/questions/387383/attiny13a-cant-generate-software-pwm-with-ctc-mode
-
-
-
-	// So, TCCR0B is TCCR0B AND...
-	// Setting the prescaler...
-	// so we take TCCR0B as it currently stands, I think the ~ makes it zero the prescaler bits first
-	// then we OR it with what prescaler bits we want
-	// so set prescaler then set the count...
-
-
-	//TCCR0B = (TCCR0B & ~((1<<CS02)|(1<<CS01)|(1<<CS00))) | val->N;
-	TCCR0B &= ~((1<<CS02)|(1<<CS01)|(1<<CS00));		// Clear the Timer.... probalby n ot needed
-	TCCR0B |= val->N;
-
-//	TCCR0B = (TCCR0B & ~((1<<CS02)|(1<<CS01)|(1<<CS00))) | N_8;		// Set Prescaler	/// not sure about this one
-
-
-
-
-  	OCR0A = val->OCRxn - 1; // set the OCRnx
-	//OCR0A_value = val->OCRxn - 1;
-
-
-	uint16_t _temp;
-	_duty = 50;
-	//_temp = (OCR0A_value * _duty)/100;
-	//OCR0B_value =	_temp;				// _duty is the duty cycle out of 255.
-	//OCR0B_value = OCR0A_value/2;		// I think this is 50% duty cycle ??
-	//OCR0B_value = (OCR0A * _duty )/100;
-
-	//OCR0A = OCR0A_value;
-	OCR0B = (OCR0A * _duty )/100;
-	//OCR0B = OCR0B_value;
-
-
-	// Can I use OCR0B to create the duty cycle???
-	// so i beleive i can probably set OCR0B to half and get 50%? might need to scope this
-
-	// so i belive i set 
-	
-	// OCR0A =  	// set count 
-	// OCR0B = 	// set count for duty, so duty = OCR0B/OCR0A
-
-	
-	
-	//OCR0A_value = val->OCRxn - 1;
-	//OCR0A = OCR0A_value;							// set TOP for PWM frequency
-	//OCR0B = OCR0B_value1;							// controls the PWM
-
-
-}
-
 
 /*
 static void _tone_250(uint8_t octave, uint8_t note)
@@ -567,12 +493,6 @@ static void stop(void)
 
 #endif
 
-/*
-void _playchirp(void){
-	_setuptone();
-	_tonenew(247, N_64,4000);
-	stop();
-}*/
 
 
 /***************************************************
@@ -585,13 +505,17 @@ void _playtones(void){
 
 #ifdef IS_BUZZER	
 	pinMode(BUZZER_PIN, OUTPUT);
-	led_on(BUZZER_PIN);
-	_delay_ms(100);
-	led_off(BUZZER_PIN);
-	_delay_ms(100);
-	led_on(BUZZER_PIN);
-	_delay_ms(100);
-	led_off(BUZZER_PIN);
+
+	for	(uint8_t n=0;n<2;n++) {
+		for (int i = 0; i < 2; i++) {
+			led_on(BUZZER_PIN);
+			_delay_ms(30);
+			led_off(BUZZER_PIN);
+			_delay_ms(10);
+		}
+		_delay_ms(40);
+	}
+
 #else						// Otherwise we are using PWM
 
 	// 9.6MHz internal oscilator...
