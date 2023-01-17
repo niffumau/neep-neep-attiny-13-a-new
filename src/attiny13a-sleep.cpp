@@ -12,6 +12,7 @@
 
 #include <Arduino.h>
 #include <avr/io.h>
+#define __DELAY_BACKWARD_COMPATIBLE__
 #include <util/delay.h>
 
 #include <avr/interrupt.h>
@@ -93,8 +94,8 @@ typedef struct s_octave {
 
 // these all need to be multiplied by 8 because the clock is 8x faster
 //24 bytes per octave
-PROGMEM const octave_t octaves[6] = {
-	{ // octave 0
+//PROGMEM const octave_t octaves[4] = {
+	/*{ // octave 0
 	.note_C = {142, N_256}, // 16.35 Hz
 	.note_CS = {134, N_256}, // 17.32 Hz
 	.note_D = {127, N_256}, // 18.35 Hz
@@ -121,8 +122,8 @@ PROGMEM const octave_t octaves[6] = {
 	.note_A = {42, N_256}, // 55.00 Hz
 	.note_AS = {39, N_256}, // 58.27 Hz
 	.note_B = {37, N_256} // 61.74 Hz
-	},
-	{ // octave 2
+	},*/
+/*	{ // octave 2
 	.note_C = {142, N_64}, // 65.41 Hz
 	.note_CS = {134, N_64}, // 69.30 Hz
 	.note_D = {127, N_64}, // 73.42 Hz
@@ -206,9 +207,14 @@ PROGMEM const octave_t octaves[6] = {
 	.note_AS = {19, N_8}, // 3729.31 Hz
 	.note_B = {18, N_8} // 3951.07 Hz
 	}*/
-};
+//};
 
+void _mydelay(uint8_t _delay) {
+	for (uint8_t i=0;i < _delay;i++ ){ 
+		_delay_ms(80);
+	}
 
+}
 
 /*******************************************************************************************************************************
  *  LED Functions
@@ -347,13 +353,40 @@ static void _setuptone(void){
 }
 #endif
 
+/***************************************************
+ *  Stop tones
+ ***************************************************
+ * 
+ */
+#ifndef IS_BUZZER	
+static void stop(void)
+{
+
+	TCCR0B &= ~((1<<CS02)|(1<<CS01)|(1<<CS00)); // stop the timer.... This should absoloutly stop the timer
+	
+	// TCCR1 = 0x90;              // stop the counter		// dont' think this works...
+  
+  	// maybe this is a better stop the couter thing..
+
+	//pinMode(BUZZER_PIN, OUTPUT);
+
+//	TCCR0A |= _BV(COM0B0);	//////////maybe this ??? NOPE, not just that
+//	TCCR0A |= ~((1<<COM0B0)|(1<<COM0B1));	// maybe both of these?  NOPE
+
+  	TCCR0A = 0; // stop the counter    // fuck knows why... fuck knos why the other one dind't work				////////////////disable this if it stops working
+
+	digitalWrite(BUZZER_PIN, LOW); // set the output to low
+}
+
+#endif
+
 #ifndef IS_BUZZER		
 /***************************************************
  *  _tone
  ***************************************************
  *   I really need to break down this function
  */
-
+/*
 static void _tone(uint8_t octave, uint8_t note)
 {
 	uint8_t OCR0A_value, OCR0B_value, _duty;
@@ -393,13 +426,28 @@ static void _tone(uint8_t octave, uint8_t note)
 
 	OCR0A = OCR0A_value;		// set count
 	OCR0B = OCR0B_value;		// set count for duty, so duty = OCR0B/OCR0A
-
-
-	
-
-
-
+	TCCR0A |= _BV(COM0B0);
 }
+
+static void
+_tone2(uint8_t octave, uint8_t note)
+{
+	uint32_t ret;
+	note_t *val;
+	ret = pgm_read_word_near((uint8_t *)&octaves + sizeof(octave_t) * octave + sizeof(note_t) * note);
+	val = (note_t *)&ret;
+	TCCR0B = (TCCR0B & ~((1<<CS02)|(1<<CS01)|(1<<CS00))) | val->N;
+  	OCR0A = val->OCRxn - 1; // set the OCRnx
+	
+}
+
+static void _tone(uint8_t _octave, uint8_t _note,uint16_t _delay) {
+	_tone(_octave, _note);
+	_delay_ms(_delay);
+	TCCR0A = 0;
+	_delay_ms(_delay);
+}
+*/
 
 static void _tonenew(uint8_t _count, uint8_t _prescaler,uint16_t _delay)
 {
@@ -431,67 +479,23 @@ static void _tonenew(uint8_t _count, uint8_t _prescaler,uint16_t _delay)
 
 	OCR0A = OCR0A_value;		// set count
 	OCR0B = OCR0B_value;		// set count for duty, so duty = OCR0B/OCR0A
+	TCCR0A |= _BV(COM0B0);
 
-
+	_mydelay(_delay);
 	
-
-	_delay_ms(_delay);
+	//TCCR0A = 0;
+	TCCR0B &= ~((1<<CS02)|(1<<CS01)|(1<<CS00)); // stop the timer
+	_mydelay(_delay);
 
 }
+
+
+
 
 #endif
 
 
-/*
-static void _tone_250(uint8_t octave, uint8_t note)
-{
-	uint8_t OCR0A_value, OCR0B_value, _duty;
 
-	uint32_t ret;
-	note_t *val;
-
-	ret = pgm_read_word_near((uint8_t *)&octaves + sizeof(octave_t) * octave + sizeof(note_t) * note);
-	val = (note_t *)&ret;
-
-
-
-	TCCR0A |= ((1<<WGM01)|(1<<WGM00)); // set fast PWM mode 7 - page 79 - uses OCR0A for TOP, PWM signal comes out on OCR0B
-	TCCR0B |= (1<<WGM02); // to use TOP as OCR0A rather than 0xFF
-	TCCR0A |= (1<<COM0B1)|(1<<COM0B0); // define inverted
-
-	TCCR0B &= ~((1<<CS02)|(1<<CS01)|(1<<CS00));		// Clear the Timer.... probalby n ot needed
-	TCCR0B |= val->N;								// Set the timer value
-
-
-
-}*/
-
-/***************************************************
- *  Stop tones
- ***************************************************
- * 
- */
-#ifndef IS_BUZZER	
-static void stop(void)
-{
-
-	TCCR0B &= ~((1<<CS02)|(1<<CS01)|(1<<CS00)); // stop the timer.... This should absoloutly stop the timer
-	
-	// TCCR1 = 0x90;              // stop the counter		// dont' think this works...
-  
-  	// maybe this is a better stop the couter thing..
-
-	//pinMode(BUZZER_PIN, OUTPUT);
-
-//	TCCR0A |= _BV(COM0B0);	//////////maybe this ??? NOPE, not just that
-//	TCCR0A |= ~((1<<COM0B0)|(1<<COM0B1));	// maybe both of these?  NOPE
-
-  	TCCR0A = 0; // stop the counter    // fuck knows why... fuck knos why the other one dind't work				////////////////disable this if it stops working
-
-	digitalWrite(BUZZER_PIN, LOW); // set the output to low
-}
-
-#endif
 
 
 
@@ -519,81 +523,60 @@ void _playtones(void){
 #else						// Otherwise we are using PWM
 
 	// 9.6MHz internal oscilator...
-
-	// test long tone...
+	
 	_setuptone();			// Set up the attiny to play tones
 
-	// Checking frequencies
-	//for (int i = 10;)
+	
 
-//	_tonenew(100, N_1024,4000);	//		// doesn't work very well
-//	_tonenew(200, N_1024,4000);	//		// doesn't work very well
+	// Happy Birthday
+//	_tone(2, 7,100);
+//	_tone(2, 7,100);
+//	_tone(2, 9,200);
+//	_tone(2, 7,200);
+//	_tone(3, 0,200);
+//	_tone(2, 11,400);
+
 
 	
+	//_tonenew(71, N_64,1);		// C-3
+	//_tonenew(67, N_64,1);		// CS
+	//_tonenew(63, N_64,1);		// D
+	//_tonenew(134, N_8,1);
+	//_tonenew(127, N_8,1);
+
+
+	_tonenew(95, N_8,1);		//G 5
+	_tonenew(95, N_8,1);		//G 5
+	_tonenew(84, N_8,2);		//A 5
+	_tonenew(95, N_8,2);		//G 5
+	_tonenew(71, N_8,1);		//C 6
+	_tonenew(75, N_8,2);		//B 5
+
+	_mydelay(4);
+	_tonenew(95, N_8,1);		//G 5
+	_tonenew(95, N_8,1);		//G 5
+	_tonenew(84, N_8,2);		//A 5
+	_tonenew(95, N_8,2);		//G 5
+	_tonenew(63, N_8,2);		//D 6
+	_tonenew(71, N_8,1);		//C 6
 	
-	//_tonenew(247, N_64,4000);	//	2972
-	//_tonenew(246, N_64,4000);	//	2972
-	//_tonenew(244, N_64,4000);	//	3015
-	//_tonenew(240, N_64,4000);	//	3058 	
+	_mydelay(4);
+	_tonenew(95, N_8,1);		//G 5
+	_tonenew(95, N_8,1);		//G 5
+	_tonenew(47, N_8,1);		//G 6
+	_tonenew(56, N_8,1);		//E 6
+	_tonenew(71, N_8,1);		//C 6
+	_tonenew(75, N_8,1);		//B 5
+	_tonenew(84, N_8,1);		//A 5
+	_mydelay(2);
+	_tonenew(53, N_8,1);		//F	6
+	_tonenew(53, N_8,1);		//F 6
+	_tonenew(56, N_8,1);		//E 6
+	_tonenew(71, N_8,1);		//C 6
+	_tonenew(63, N_8,2);		//D 6
+	_tonenew(71, N_8,1);		//C 6
+	stop();
 
-	//_tonenew(128, N_256,4000);	//	
-	//_tonenew(200, N_256,4000);	//		
-	//_tonenew(notes[0], N_8,4000);
-
-	//_tonenew(72, N_8,4000);
-
-/*
-	for (uint8_t i = 0;i<12;i++) {
-		_tonenew(notes[i], N_64,400);
-	}
-*/
-/*
-	for (uint8_t i = 250;i<255;i-=20) {
-		_tonenew(i, N_64,400);
-	}
-/*
-
-	for (uint8_t i = 250;i<255;i-=20) {
-		_tonenew(i, N_256,400);
-	}
-*/
-
-/*
-	for (int j=7;j>0;j--) {
-		for (int i=11;i>0;i--) {
-			_tone(i, j);	//note_C 
-			_delay_ms(400);
-		}
-		_delay_ms(500);
-	}*/
-
-
-/*	// this one works great
-	for (int i = 3; i < 5; ++i) {
-		led_blink(LED_GREEN,i+1);
-		for (int j = 0; j < 12; ++j) {
-			_tone(i, j);
-			_delay_ms(80);
-		}
-	}*/
-
-	for (uint8_t g=0;g<2;g++) {
-		_setuptone();			// Set up the attiny to play tones
-		for	(uint8_t n=0;n<CHIRPS;n++) {
-			// new one thats faster
-			for (uint8_t j = 4; j < 5; ++j) {
-				//led_blink(LED_GREEN,i+1);
-				for (int i = 0; i < 12; i += 4) {
-					_tone(j, i);
-					_delay_ms(40);
-				}
-				//_delay_ms(1000);
-			}
-			//_delay_ms(100);
-		}
-		stop();
-		_delay_ms(200);
-	}
 
 	/*
 	_tone(4, 7);	//note_C 
