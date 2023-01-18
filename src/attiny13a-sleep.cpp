@@ -491,6 +491,43 @@ static void _tonenew(uint8_t _count, uint8_t _prescaler,uint16_t _delay)
 
 
 
+void _playtones_happybirthday(void){
+	_tonenew(95, N_8,1);		//G 5
+	_tonenew(95, N_8,1);		//G 5
+	_tonenew(84, N_8,2);		//A 5
+	_tonenew(95, N_8,2);		//G 5
+	_tonenew(71, N_8,1);		//C 6
+	_tonenew(75, N_8,2);		//B 5
+	_mydelay(4);
+	_tonenew(95, N_8,1);		//G 5
+	_tonenew(95, N_8,1);		//G 5
+	_tonenew(84, N_8,2);		//A 5
+	_tonenew(95, N_8,2);		//G 5
+	_tonenew(63, N_8,2);		//D 6
+	_tonenew(71, N_8,1);		//C 6
+	_mydelay(4);
+	_tonenew(95, N_8,1);		//G 5
+	_tonenew(95, N_8,1);		//G 5
+	_tonenew(47, N_8,1);		//G 6
+	_tonenew(56, N_8,1);		//E 6
+	_tonenew(71, N_8,1);		//C 6
+	_tonenew(75, N_8,1);		//B 5
+	_tonenew(84, N_8,1);		//A 5
+	_mydelay(2);
+	_tonenew(53, N_8,1);		//F	6
+	_tonenew(53, N_8,1);		//F 6
+	_tonenew(56, N_8,1);		//E 6
+	_tonenew(71, N_8,1);		//C 6
+	_tonenew(63, N_8,2);		//D 6
+	_tonenew(71, N_8,1);		//C 6
+}
+
+void playtune_nokia(void){
+		_tonenew(56, N_8,1);		//E 6
+		
+}
+
+
 
 #endif
 
@@ -544,38 +581,8 @@ void _playtones(void){
 	//_tonenew(134, N_8,1);
 	//_tonenew(127, N_8,1);
 
-
-	_tonenew(95, N_8,1);		//G 5
-	_tonenew(95, N_8,1);		//G 5
-	_tonenew(84, N_8,2);		//A 5
-	_tonenew(95, N_8,2);		//G 5
-	_tonenew(71, N_8,1);		//C 6
-	_tonenew(75, N_8,2);		//B 5
-
-	_mydelay(4);
-	_tonenew(95, N_8,1);		//G 5
-	_tonenew(95, N_8,1);		//G 5
-	_tonenew(84, N_8,2);		//A 5
-	_tonenew(95, N_8,2);		//G 5
-	_tonenew(63, N_8,2);		//D 6
-	_tonenew(71, N_8,1);		//C 6
-	
-	_mydelay(4);
-	_tonenew(95, N_8,1);		//G 5
-	_tonenew(95, N_8,1);		//G 5
-	_tonenew(47, N_8,1);		//G 6
-	_tonenew(56, N_8,1);		//E 6
-	_tonenew(71, N_8,1);		//C 6
-	_tonenew(75, N_8,1);		//B 5
-	_tonenew(84, N_8,1);		//A 5
-	_mydelay(2);
-	_tonenew(53, N_8,1);		//F	6
-	_tonenew(53, N_8,1);		//F 6
-	_tonenew(56, N_8,1);		//E 6
-	_tonenew(71, N_8,1);		//C 6
-	_tonenew(63, N_8,2);		//D 6
-	_tonenew(71, N_8,1);		//C 6
-	stop();
+	// Happy Birthday
+	_playtones_happybirthday();
 
 
 	/*
@@ -593,12 +600,6 @@ void _playtones(void){
 
 
 
-
-
-
-
-
-
 /*******************************************************************************************************************************
  *  Random Number Generator that probably doesn't work cunt
  *******************************************************************************************************************************/
@@ -612,31 +613,16 @@ long countSleepLimit=0;
  * 
  */
 
-#define USE_RANDOM_SEED		// this doesn't work because we don't have the random read 
-
-#ifdef    USE_RANDOM_SEED
-#define    RANDOM_SEED_ADDRESS    0x00
-#endif    /* !USE_RANDOM_SEED */
-
 static uint16_t random_number = 0;
 static uint16_t lfsr16_next(uint16_t n) {
     return (n >> 0x01U) ^ (-(n & 0x01U) & 0xB400U);    
 }
 
-void random_init(uint16_t seed) {
-#ifdef USE_RANDOM_SEED
-    //random_number = lfsr16_next(eeprom_read_word((uint16_t *)RANDOM_SEED_ADDRESS) ^ seed);
-    //eeprom_write_word((uint16_t *)0, random_number);
-
+void random_init(void) {		// fuck the seed?
 	pinMode(PB3, INPUT);
 	uint8_t Rand1 = analogRead(PB3);
 	uint8_t Rand2 = analogRead(PB3);
-
 	random_number = Rand1 + (Rand1<<8);
-
-#else
-    random_number = seed;
-#endif    /* !USE_RANDOM_SEED */
 }
 
 uint16_t _random( uint16_t _min, uint16_t _max) {
@@ -779,7 +765,7 @@ void system_sleep(byte b) {
 
 void setup() {
 	// setup random shit
-	random_init(0xabcd); // initialize 16 bit seed
+	random_init(); // initialize 16 bit seed
 
 	pinMode(BUZZER_PIN, OUTPUT);
 
