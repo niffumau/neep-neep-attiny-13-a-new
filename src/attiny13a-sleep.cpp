@@ -69,7 +69,7 @@ divide by 8, and its 71.6
 
 //uint8_t mcucr1, mcucr2;
 
-int notes[12]={239,225,213,201,190,179,169,159,150,142,134,127};
+//int notes[12]={239,225,213,201,190,179,169,159,150,142,134,127};
 //int notes[12]={72,225,213,201,190,179,169,159,150,142,134,127};    
 
 
@@ -94,10 +94,11 @@ typedef struct s_octave {
 	note_t note_B;
 } octave_t;
 
+/*
 // these all need to be multiplied by 8 because the clock is 8x faster
 //24 bytes per octave
 //PROGMEM const octave_t octaves[4] = {
-	/*{ // octave 0
+	{ // octave 0
 	.note_C = {142, N_256}, // 16.35 Hz
 	.note_CS = {134, N_256}, // 17.32 Hz
 	.note_D = {127, N_256}, // 18.35 Hz
@@ -124,8 +125,8 @@ typedef struct s_octave {
 	.note_A = {42, N_256}, // 55.00 Hz
 	.note_AS = {39, N_256}, // 58.27 Hz
 	.note_B = {37, N_256} // 61.74 Hz
-	},*/
-/*	{ // octave 2
+	},
+	{ // octave 2
 	.note_C = {142, N_64}, // 65.41 Hz
 	.note_CS = {134, N_64}, // 69.30 Hz
 	.note_D = {127, N_64}, // 73.42 Hz
@@ -180,7 +181,7 @@ typedef struct s_octave {
 	.note_A = {84, N_8}, // 440.00 Hz
 	.note_AS = {79, N_8}, // 466.16 Hz
 	.note_B = {75, N_8} // 493.88 Hz
-	}/*,
+	},
 	{  // octave 6
 	.note_C = {71, N_8}, // 1046.50 Hz
 	.note_CS = {67, N_8}, // 1108.73 Hz
@@ -208,8 +209,8 @@ typedef struct s_octave {
 	.note_A = {20, N_8}, // 3520.00 Hz
 	.note_AS = {19, N_8}, // 3729.31 Hz
 	.note_B = {18, N_8} // 3951.07 Hz
-	}*/
-//};
+	}
+};*/
 
 void _mydelay(uint8_t _delay) {
 	for (uint8_t i=0;i < _delay;i++ ){ 
@@ -491,6 +492,96 @@ static void _tonenew(uint8_t _count, uint8_t _prescaler,uint16_t _delay)
 
 }
 
+
+#define NOTE_2A		-24
+#define NOTE_3A		-12
+
+#define NOTE_4A		0
+#define NOTE_4AS	1
+#define NOTE_4B		2
+
+#define NOTE_5C		3
+#define NOTE_5CS	4
+#define NOTE_5D		5
+#define NOTE_5DS	6
+#define NOTE_5E		7
+#define NOTE_5F		8
+#define NOTE_5FS	9
+#define NOTE_5G		10
+#define NOTE_5GS	11
+#define NOTE_5A		12
+#define NOTE_5AS	13
+#define NOTE_5B		14
+
+
+
+#define NOTE_5A		12
+#define NOTE_5AS	13
+#define NOTE_5B		14
+
+#define NOTE_6C		15
+#define NOTE_6CS	16
+#define NOTE_6D		17
+#define NOTE_6DS	18
+#define NOTE_6E		19
+#define NOTE_6F		20
+#define NOTE_6FS	21
+#define NOTE_6G		22
+#define NOTE_6GS	23
+#define NOTE_6A		24
+#define NOTE_6AS	25
+#define NOTE_6B		26
+
+/***************************************************
+ *  play_frequency
+ ***************************************************
+ *   Play a particular frequency for a duration
+ *   
+ *   
+ */
+
+void play_frequency(double freq_hz, int _duration) {
+
+	uint8_t _prescaler,prescaler_number;
+	
+	if (freq_hz <  64) {		// Work out the prescaler
+		_prescaler = N_256;
+		prescaler_number = 256;
+	} else if (freq_hz < 500 ) {
+		_prescaler = N_64;
+		prescaler_number = 64;
+	} else {
+		_prescaler = N_8;
+		prescaler_number = 8;
+	}
+
+	/*
+	 *
+	  *  now based on the prescaler, we calculate the count...
+	  * 
+	  * so, lets say 440hz.  at 440hz, 
+	  * Processor clock: 9.6MHz
+	  * prescaler of N_64
+	  * so clock becomes 150kHz.  
+	  * 
+	  */
+
+
+	uint8_t divisor = 1200000/(prescaler_number * freq_hz );
+	
+	TCCR0B = (TCCR0B & ~((1<<CS02)|(1<<CS01)|(1<<CS00))) | _prescaler;
+	OCR0A = divisor;		// set count
+	OCR0B = divisor/2;		// set count for duty, so duty = OCR0B/OCR0A
+	TCCR0A |= _BV(COM0B0);
+
+	_mydelay(_duration);
+	
+	TCCR0B &= ~((1<<CS02)|(1<<CS01)|(1<<CS00)); // stop the timer
+	_mydelay(_duration);	
+
+
+}
+
 /***************************************************
  *  play_note
  ***************************************************
@@ -498,16 +589,71 @@ static void _tonenew(uint8_t _count, uint8_t _prescaler,uint16_t _delay)
  *   I'll start by trying to work out what the frequency of the note is
  *   https://pages.mtu.edu/~suits/NoteFreqCalcs.html
  */
-void play_note(void) {
+void play_note(int _semitone, int _duration) {
 
-	float note_frequency = 0;
-	float F0 = 440	; 			// frequency of known note, we are talking A4
-	int semitonesaway = 4;
+	
+	double F0 = 440	; 			// frequency of known note, we are talking A4
+	double note_frequency = F0;
+	//F0 = 16.35;		// this is C-0
+
+	double a = 1.059463094359;
+
+	if (_semitone < 0) {
+		note_frequency = F0;
+		for (int i=0;i--;i>_semitone) {
+			note_frequency = note_frequency / a;
+		}
+
+	} else if (_semitone > 0) {
+		note_frequency = F0;
+		for (int i=0;i++;i<_semitone) {
+			note_frequency = note_frequency *  a;
+		}
+
+	} else {
+		note_frequency = F0;
+	}
+
+	
+
+	//note_frequency = 440 + 10*_semitone;
+
+
 	//float a = 2^(1/12);
-	float a = pow(2,(1/12));
+	//double a = pow(2,(1/12));
+
+	//double a = 1.059463094359;
+	//double a = pow(2,0.08333);
+	//float a = 1.059463094359;		// or hard code it...
 
 	//note_frequency = F0 * (a)^(semitonesaway);
-	note_frequency = F0 * pow(a,semitonesaway);
+	//note_frequency = F0 * pow(a,_semitone);
+
+	//note_frequency = F0 * pow(1.0594,_semitone);
+	//note_frequency = pow(a,_semitone);
+
+	play_frequency(note_frequency,_duration);
+
+
+}
+
+void playtune_a4(void) {
+
+
+	//play_frequency(1000,20);
+	//play_note(0, 20);
+
+	/*play_note(NOTE_5G,1);
+	play_note(NOTE_5G,1);
+	play_note(NOTE_5A,2);
+	play_note(NOTE_5G,2);
+	play_note(NOTE_6C,1);
+	play_note(NOTE_5B,2);*/
+
+	for	(uint8_t n=0;n<10;n++) {
+		play_note(n,1);
+
+	}
 
 
 }
@@ -608,7 +754,9 @@ void _playtones(void){
 
 
 	//playtune_happybirthday();
-	playtune_nokia();
+	//playtune_nokia();
+
+	playtune_a4();
 
 	stop();
 #endif
