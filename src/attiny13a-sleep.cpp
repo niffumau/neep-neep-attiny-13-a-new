@@ -23,7 +23,7 @@
 #include <avr/power.h>
 #include <avr/sleep.h>
 
-#include <math.h>
+//#include <math.h>		// fuck me this can use up a lot of flash
 //#include <avr/wdt.h>
 
 #ifndef ARDUINO
@@ -449,11 +449,23 @@ static void _tonenew(uint8_t _divisor, uint8_t _prescaler,uint16_t _delay)
  *  play_frequency
  ***************************************************
  *   Play a particular frequency for a duration
+ * 
+ * 
+ * 	
+	*
+	*  now based on the prescaler, we calculate the count...
+	* 
+	* so, lets say 440hz.  at 440hz, 
+	* Processor clock: 9.6MHz
+	* prescaler of N_64
+	* so clock becomes 150kHz.  
+	* 
+	*
  *   
  *   
  */
 
-void play_frequency(double freq_hz, int _duration) {
+void play_frequency(uint16_t freq_hz, int _duration) {
 
 	uint8_t _prescaler,prescaler_number;
 	uint8_t divisor;
@@ -465,29 +477,16 @@ void play_frequency(double freq_hz, int _duration) {
 	if (freq_hz <  64) {		// Work out the prescaler
 		_prescaler = N_256;
 		//prescaler_number = 256;		// maybe i have to calculate the divisor here?
-		divisor = (double)1200000/(256 * freq_hz );
+		divisor = 1200000/(256 * freq_hz );
 	} else if (freq_hz < 500 ) {
 		_prescaler = N_64;
 		//prescaler_number = 64;
-		divisor = (double)1200000/(64 * freq_hz );
+		divisor = 1200000/(64 * freq_hz );
 	} else {
 		_prescaler = N_8;
 		//prescaler_number = 8;
-		divisor = (double)1200000/(8 * freq_hz );
+		divisor = 1200000/(8 * freq_hz );
 	}
-
-	/*
-	 *
-	  *  now based on the prescaler, we calculate the count...
-	  * 
-	  * so, lets say 440hz.  at 440hz, 
-	  * Processor clock: 9.6MHz
-	  * prescaler of N_64
-	  * so clock becomes 150kHz.  
-	  * 
-	  */
-
-
 
 	
 	TCCR0B = (TCCR0B & ~((1<<CS02)|(1<<CS01)|(1<<CS00))) | _prescaler;
@@ -512,25 +511,27 @@ void play_frequency(double freq_hz, int _duration) {
  */
 void play_note(int _semitone, int _duration) {
 
-	
-	double F0 = 440	; 			// frequency of known note, we are talking A4
-	double note_frequency = F0;
+	//if (_semitone < 0) led_status(2,-_semitone);
+	//else led_status(3,_semitone);
+
+	uint16_t F0 = 440	; 			// frequency of known note, we are talking A4
+	uint16_t note_frequency = F0;
 	//F0 = 16.35;		// this is C-0
 
 	double a = 1.059463094359;
 
 	if (_semitone < 0) {
-		note_frequency = F0;
+		
 		for (int i=0;i--;i>_semitone) {
-			note_frequency = note_frequency / a;
+			a = a / a;
 		}
-
+		note_frequency = F0 * a;
 	} else if (_semitone > 0) {
 		note_frequency = F0;
 		for (int i=0;i++;i<_semitone) {
-			note_frequency = note_frequency *  a;
+			a = a * a;
 		}
-
+		note_frequency = F0 * a;
 	} else {
 		note_frequency = F0;
 	}
@@ -552,6 +553,8 @@ void play_note(int _semitone, int _duration) {
 
 	//note_frequency = F0 * pow(1.0594,_semitone);
 	//note_frequency = pow(a,_semitone);
+	//double somethingstrange = pow(a,_semitone);
+
 
 	play_frequency(note_frequency,_duration);
 
@@ -560,24 +563,38 @@ void play_note(int _semitone, int _duration) {
 
 void playtune_a4(void) {
 
-
-	//play_frequency(1000,20);
+//	play_frequency(1,20);
+	//play_frequency(10,20);
+//	play_frequency(10000,20);
+//	play_frequency((float)100,20);
 	//play_note(0, 20);
 
-	/*play_note(NOTE_5G,1);
+	play_note(NOTE_5G,1);
 	play_note(NOTE_5G,1);
 	play_note(NOTE_5A,2);
 	play_note(NOTE_5G,2);
 	play_note(NOTE_6C,1);
-	play_note(NOTE_5B,2);*/
+	play_note(NOTE_5B,2);
 
-	for	(uint8_t n=0;n<10;n++) {
+/*	for	(int n=0;n<10;n+=3) {
 		play_note(n,1);
 
 	}
+*/
 
+/*	for	(int n=0;n<100;n+=10) {
+		play_frequency(440+n,1);
+	}
+*/
 
 }
+
+
+/*
+ * I think that in future, the following should be reduced into maybe an array of notes and duration.. so
+ * NOTE_C5,1,NOTE_G3,2
+ * 
+*/
 
 void playtune_happybirthday(void){
 	_tonenew(95, N_8,1);		//G 5
@@ -669,7 +686,7 @@ void _playtones(void){
 
 #else						// Otherwise we are using PWM
 
-	// 9.6MHz internal oscilator...
+	// 9.6MHz internal oscilator... lol, no, i think this is 1.2MHz for the ATTiny13a
 	
 	_setuptone();			// Set up the attiny to play tones
 
