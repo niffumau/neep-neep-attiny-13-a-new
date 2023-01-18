@@ -384,112 +384,25 @@ static void stop(void)
 #endif
 
 #ifndef IS_BUZZER		
-/***************************************************
- *  _tone
- ***************************************************
- *   I really need to break down this function
- */
-/*
-static void _tone(uint8_t octave, uint8_t note)
+
+
+static void _tonenew(uint8_t _divisor, uint8_t _prescaler,uint16_t _delay)
 {
-	uint8_t OCR0A_value, OCR0B_value, _duty;
-
-	uint32_t ret;
-	note_t *val;
-	ret = pgm_read_word_near((uint8_t *)&octaves + sizeof(octave_t) * octave + sizeof(note_t) * note);
-	val = (note_t *)&ret;
-
-
-
-	// https://electronics.stackexchange.com/questions/387383/attiny13a-cant-generate-software-pwm-with-ctc-mode
-
-
-
 	// So, TCCR0B is TCCR0B AND...
 	// Setting the prescaler...
 	// so we take TCCR0B as it currently stands, I think the ~ makes it zero the prescaler bits first
 	// then we OR it with what prescaler bits we want
 	// so set prescaler then set the count...
-
-
-	TCCR0B = (TCCR0B & ~((1<<CS02)|(1<<CS01)|(1<<CS00))) | val->N;
-	//TCCR0B &= ~((1<<CS02)|(1<<CS01)|(1<<CS00));		// Clear the Timer.... probalby n ot needed
-	//TCCR0B |= val->N;
-
-//	TCCR0B = (TCCR0B & ~((1<<CS02)|(1<<CS01)|(1<<CS00))) | N_8;		// Set Prescaler	/// not sure about this one
-
-	OCR0A_value = val->OCRxn - 1;
-
-	uint16_t _temp;
-	_duty = 100 - DUTY_CYCLE;
-	//_temp = (OCR0A_value * _duty)/100;
-	//OCR0B_value =	_temp;				// _duty is the duty cycle out of 255.
-	//OCR0B_value = OCR0A_value/2;		// I think this is 50% duty cycle ??
-	OCR0B_value = (OCR0A_value * _duty )/100;
-
-	OCR0A = OCR0A_value;		// set count
-	OCR0B = OCR0B_value;		// set count for duty, so duty = OCR0B/OCR0A
-	TCCR0A |= _BV(COM0B0);
-}
-
-static void
-_tone2(uint8_t octave, uint8_t note)
-{
-	uint32_t ret;
-	note_t *val;
-	ret = pgm_read_word_near((uint8_t *)&octaves + sizeof(octave_t) * octave + sizeof(note_t) * note);
-	val = (note_t *)&ret;
-	TCCR0B = (TCCR0B & ~((1<<CS02)|(1<<CS01)|(1<<CS00))) | val->N;
-  	OCR0A = val->OCRxn - 1; // set the OCRnx
-	
-}
-
-static void _tone(uint8_t _octave, uint8_t _note,uint16_t _delay) {
-	_tone(_octave, _note);
-	_delay_ms(_delay);
-	TCCR0A = 0;
-	_delay_ms(_delay);
-}
-*/
-
-static void _tonenew(uint8_t _count, uint8_t _prescaler,uint16_t _delay)
-{
-	uint8_t OCR0A_value, OCR0B_value, _duty;
-
-	// So, TCCR0B is TCCR0B AND...
-	// Setting the prescaler...
-	// so we take TCCR0B as it currently stands, I think the ~ makes it zero the prescaler bits first
-	// then we OR it with what prescaler bits we want
-	// so set prescaler then set the count...
-
 
 	TCCR0B = (TCCR0B & ~((1<<CS02)|(1<<CS01)|(1<<CS00))) | _prescaler;
 
-
-	//TCCR0B &= ~((1<<CS02)|(1<<CS01)|(1<<CS00));		// Clear the Timer.... probalby n ot needed
-	//TCCR0B |= val->N;
-
-//	TCCR0B = (TCCR0B & ~((1<<CS02)|(1<<CS01)|(1<<CS00))) | N_8;		// Set Prescaler	/// not sure about this one
-
-	OCR0A_value = _count;
-
-	uint16_t _temp;
-	_duty = 50;
-	//_temp = (OCR0A_value * _duty)/100;
-	//OCR0B_value =	_temp;				// _duty is the duty cycle out of 255.
-	OCR0B_value = OCR0A_value/2;		// I think this is 50% duty cycle ??
-	//OCR0B_value = (OCR0A_value * _duty )/100;
-
-	OCR0A = OCR0A_value;		// set count
-	OCR0B = OCR0B_value;		// set count for duty, so duty = OCR0B/OCR0A
+	OCR0A = _divisor;		// set count
+	OCR0B = _divisor/2;		// set count for duty, so duty = OCR0B/OCR0A
 	TCCR0A |= _BV(COM0B0);
 
 	_mydelay(_delay);
-	
-	//TCCR0A = 0;
 	TCCR0B &= ~((1<<CS02)|(1<<CS01)|(1<<CS00)); // stop the timer
 	_mydelay(_delay);
-
 }
 
 
@@ -543,16 +456,24 @@ static void _tonenew(uint8_t _count, uint8_t _prescaler,uint16_t _delay)
 void play_frequency(double freq_hz, int _duration) {
 
 	uint8_t _prescaler,prescaler_number;
-	
+	uint8_t divisor;
+
+	// Math routines
+	// 1200000L converts to (long)1200000
+
+
 	if (freq_hz <  64) {		// Work out the prescaler
 		_prescaler = N_256;
-		prescaler_number = 256;
+		//prescaler_number = 256;		// maybe i have to calculate the divisor here?
+		divisor = (double)1200000/(256 * freq_hz );
 	} else if (freq_hz < 500 ) {
 		_prescaler = N_64;
-		prescaler_number = 64;
+		//prescaler_number = 64;
+		divisor = (double)1200000/(64 * freq_hz );
 	} else {
 		_prescaler = N_8;
-		prescaler_number = 8;
+		//prescaler_number = 8;
+		divisor = (double)1200000/(8 * freq_hz );
 	}
 
 	/*
@@ -567,7 +488,7 @@ void play_frequency(double freq_hz, int _duration) {
 	  */
 
 
-	uint8_t divisor = 1200000/(prescaler_number * freq_hz );
+
 	
 	TCCR0B = (TCCR0B & ~((1<<CS02)|(1<<CS01)|(1<<CS00))) | _prescaler;
 	OCR0A = divisor;		// set count
