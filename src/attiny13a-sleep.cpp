@@ -22,6 +22,8 @@
 
 #include <avr/power.h>
 #include <avr/sleep.h>
+
+#include <math.h>
 //#include <avr/wdt.h>
 
 #ifndef ARDUINO
@@ -489,9 +491,28 @@ static void _tonenew(uint8_t _count, uint8_t _prescaler,uint16_t _delay)
 
 }
 
+/***************************************************
+ *  play_note
+ ***************************************************
+ *   I am not really sure how this is going to pan out
+ *   I'll start by trying to work out what the frequency of the note is
+ *   https://pages.mtu.edu/~suits/NoteFreqCalcs.html
+ */
+void play_note(void) {
+
+	float note_frequency = 0;
+	float F0 = 440	; 			// frequency of known note, we are talking A4
+	int semitonesaway = 4;
+	//float a = 2^(1/12);
+	float a = pow(2,(1/12));
+
+	//note_frequency = F0 * (a)^(semitonesaway);
+	note_frequency = F0 * pow(a,semitonesaway);
 
 
-void _playtones_happybirthday(void){
+}
+
+void playtune_happybirthday(void){
 	_tonenew(95, N_8,1);		//G 5
 	_tonenew(95, N_8,1);		//G 5
 	_tonenew(84, N_8,2);		//A 5
@@ -523,8 +544,30 @@ void _playtones_happybirthday(void){
 }
 
 void playtune_nokia(void){
-		_tonenew(56, N_8,1);		//E 6
-		
+	// E D f# g# 
+	// c# B D E
+	// B A c# E A
+	_tonenew(56, N_8,1);		//E 6
+	_tonenew(63, N_8,1);		//D 6
+	_tonenew(100, N_8,2);		//FS 5
+	_tonenew( 89, N_8,1);		//GS 5
+
+	_tonenew( 67, N_8,1);		//CS 6
+	_tonenew( 75, N_8,1);		//B  5
+	_tonenew(127, N_8,2);		//D	 5
+	_tonenew(113, N_8,1);		//E	 5
+
+	_tonenew( 75, N_8,1);		//B  5
+	_tonenew( 84, N_8,1);		//A  5
+	_tonenew(134, N_8,2);		//CS 5
+	_tonenew(113, N_8,2);		//E	 5
+	_tonenew( 84, N_8,2);		//A  5
+
+/*	_tonenew(134, N_8,1);		//CS 5
+	_tonenew(127, N_8,1);		//D	 5
+	_tonenew( 75, N_8,1);		//B 5
+	_tonenew(142, N_8,2);		//E	 5*/
+
 }
 
 
@@ -563,35 +606,10 @@ void _playtones(void){
 	
 	_setuptone();			// Set up the attiny to play tones
 
-	
 
-	// Happy Birthday
-//	_tone(2, 7,100);
-//	_tone(2, 7,100);
-//	_tone(2, 9,200);
-//	_tone(2, 7,200);
-//	_tone(3, 0,200);
-//	_tone(2, 11,400);
+	//playtune_happybirthday();
+	playtune_nokia();
 
-
-	
-	//_tonenew(71, N_64,1);		// C-3
-	//_tonenew(67, N_64,1);		// CS
-	//_tonenew(63, N_64,1);		// D
-	//_tonenew(134, N_8,1);
-	//_tonenew(127, N_8,1);
-
-	// Happy Birthday
-	_playtones_happybirthday();
-
-
-	/*
-	_tone(4, 7);	//note_C 
-	_delay_ms(100);
-	_tone(3, 6);	//
-	_delay_ms(100);
-	_tone(3, 3);	//
-	_delay_ms(100);*/
 	stop();
 #endif
 	//led_off(LED_RED);
