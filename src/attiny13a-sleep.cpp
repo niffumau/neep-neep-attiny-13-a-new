@@ -336,7 +336,7 @@ void play_note(uint8_t _note, uint8_t _duration) {
 	uint8_t _prescaler;
 	uint8_t divisor;
 
-	_note = 57;
+	//_note = 84;
 
 	//led_status(1,_note);
 	//led_status(2,_duration);
@@ -345,6 +345,10 @@ void play_note(uint8_t _note, uint8_t _duration) {
 	//uint8_t semitone;
 	//uint8_t octave;
 
+	// check to see if shits fucked
+	if ((_note < 0) || (_note > 83) ) {
+		led_status(4,2);
+	}
 
 	if (_note <  24) {		// Work out the prescaler
 		_prescaler = N_256;
@@ -396,7 +400,7 @@ void play_note(uint8_t _note, uint8_t _duration) {
 	/*play_note(NOTE_5G,1);
 	play_note(NOTE_5G,1);
 	play_note(NOTE_5G,1);*/
-//void playtune_melody(byte *_melody,uint8_t _size) {
+
 void playtune_melody(notes_t *melody,uint8_t _size) {
 	// input be a pointer to an array?
 
@@ -599,7 +603,7 @@ void _playtones(void){
 
 	//led_status(4,sizeof(tune_scale_3)/2);
 	//playtune_melody(tune_scale_3,sizeof(tune_scale_3)/2);
-	playtune_melody(tune_scale_3,12);
+	playtune_melody(tune_scale_4,12);
 
 	
 	stop();
