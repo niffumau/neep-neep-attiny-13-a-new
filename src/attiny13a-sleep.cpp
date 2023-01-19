@@ -64,153 +64,14 @@ too large..
 options are 1, 8, 64,
 divide by 8, and its 71.6
 
-
 */
 
-//uint8_t mcucr1, mcucr2;
-
-//int notes[12]={239,225,213,201,190,179,169,159,150,142,134,127};
-//int notes[12]={72,225,213,201,190,179,169,159,150,142,134,127};    
 
 
 
-typedef struct s_note {
-	uint8_t OCRxn; // 0..255
-	uint8_t N;
-} note_t;
+// divisor
 
-typedef struct s_octave {
-	note_t note_C;
-	note_t note_CS;
-	note_t note_D;
-	note_t note_DS;
-	note_t note_E;
-	note_t note_F;
-	note_t note_FS;
-	note_t note_G;
-	note_t note_GS;
-	note_t note_A;
-	note_t note_AS;
-	note_t note_B;
-} octave_t;
 
-/*
-// these all need to be multiplied by 8 because the clock is 8x faster
-//24 bytes per octave
-//PROGMEM const octave_t octaves[4] = {
-	{ // octave 0
-	.note_C = {142, N_256}, // 16.35 Hz
-	.note_CS = {134, N_256}, // 17.32 Hz
-	.note_D = {127, N_256}, // 18.35 Hz
-	.note_DS = {120, N_256}, // 19.45 Hz
-	.note_E = {113, N_256}, // 20.60 Hz
-	.note_F = {106, N_256}, // 21.83 Hz
-	.note_FS = {100, N_256}, // 23.12 Hz
-	.note_G = {95, N_256}, // 24.50 Hz
-	.note_GS = {89, N_256}, // 25.96 Hz
-	.note_A = {84, N_256}, // 27.50 Hz
-	.note_AS = {79, N_256}, // 29.14 Hz
-	.note_B = {75, N_256} // 30.87 Hz
-	},
-	{ // octave 1
-	.note_C = {71, N_256}, // 32.70 Hz
-	.note_CS = {67, N_256}, // 34.65 Hz
-	.note_D = {63, N_256}, // 36.71 Hz
-	.note_DS = {59, N_256}, // 38.89 Hz
-	.note_E = {56, N_256}, // 41.20 Hz
-	.note_F = {53, N_256}, // 43.65 Hz
-	.note_FS = {50, N_256}, // 46.25 Hz
-	.note_G = {47, N_256}, // 49.00 Hz
-	.note_GS = {44, N_256}, // 51.91 Hz
-	.note_A = {42, N_256}, // 55.00 Hz
-	.note_AS = {39, N_256}, // 58.27 Hz
-	.note_B = {37, N_256} // 61.74 Hz
-	},
-	{ // octave 2
-	.note_C = {142, N_64}, // 65.41 Hz
-	.note_CS = {134, N_64}, // 69.30 Hz
-	.note_D = {127, N_64}, // 73.42 Hz
-	.note_DS = {120, N_64}, // 77.78 Hz
-	.note_E = {113, N_64}, // 82.41 Hz
-	.note_F = {106, N_64}, // 87.31 Hz
-	.note_FS = {100, N_64}, // 92.50 Hz
-	.note_G = {95, N_64}, // 98.00 Hz
-	.note_GS = {89, N_64}, // 103.83 Hz
-	.note_A = {84, N_64}, // 110.00 Hz
-	.note_AS = {79, N_64}, // 116.54 Hz
-	.note_B = {75, N_64} // 123.47 Hz
-	},
-	{ // octave 3
-	.note_C = {71, N_64}, // 130.81 Hz
-	.note_CS = {67, N_64}, // 138.59 Hz
-	.note_D = {63, N_64}, // 146.83 Hz
-	.note_DS = {59, N_64}, // 155.56 Hz
-	.note_E = {56, N_64}, // 164.81 Hz
-	.note_F = {53, N_64}, // 174.61 Hz
-	.note_FS = {50, N_64}, // 185.00 Hz
-	.note_G = {47, N_64}, // 196.00 Hz
-	.note_GS = {44, N_64}, // 207.65 Hz
-	.note_A = {42, N_64}, // 220.00 Hz
-	.note_AS = {39, N_64}, // 233.08 Hz
-	.note_B = {37, N_64} // 246.94 Hz
-	},
-	{ // octave 4
-	.note_C = {35, N_64}, // 261.63 Hz
-	.note_CS = {33, N_64}, // 277.18 Hz
-	.note_D = {31, N_64}, // 293.66 Hz
-	.note_DS = {29, N_64}, // 311.13 Hz
-	.note_E = {27, N_64}, // 329.63 Hz
-	.note_F = {26, N_64}, // 349.23 Hz
-	.note_FS = {24, N_64}, // 369.99 Hz
-	.note_G = {23, N_64}, // 392.00 Hz
-	.note_GS = {22, N_64}, // 415.30 Hz
-	.note_A = {20, N_64}, // 440.00 Hz
-	.note_AS = {19, N_64}, // 466.16 Hz
-	.note_B = {18, N_64} // 493.88 Hz
-	},
-	{  // octave 5
-	.note_C = {142, N_8}, // 523.25 Hz
-	.note_CS = {134, N_8}, // 554.37 Hz
-	.note_D = {127, N_8}, // 587.33 Hz
-	.note_DS = {120, N_8}, // 622.25 Hz
-	.note_E = {113, N_8}, // 659.25 Hz
-	.note_F = {106, N_8}, // 349.23 Hz
-	.note_FS = {100, N_8}, // 369.99 Hz
-	.note_G = {95, N_8}, // 392.00 Hz
-	.note_GS = {89, N_8}, // 415.30 Hz
-	.note_A = {84, N_8}, // 440.00 Hz
-	.note_AS = {79, N_8}, // 466.16 Hz
-	.note_B = {75, N_8} // 493.88 Hz
-	},
-	{  // octave 6
-	.note_C = {71, N_8}, // 1046.50 Hz
-	.note_CS = {67, N_8}, // 1108.73 Hz
-	.note_D = {63, N_8}, // 1174.66 Hz
-	.note_DS = {59, N_8}, // 1244.51 Hz
-	.note_E = {56, N_8}, // 1318.51 Hz
-	.note_F = {53, N_8}, // 1396.91 Hz
-	.note_FS = {50, N_8}, // 1479.98 Hz
-	.note_G = {47, N_8}, // 1567.98 Hz
-	.note_GS = {44, N_8}, // 1661.22 Hz
-	.note_A = {42, N_8}, // 1760.00 Hz
-	.note_AS = {39, N_8}, // 1864.66 Hz
-	.note_B = {37, N_8} // 1975.53 Hz
-	},
-	{  // octave 7	// all N_8
-	.note_C = {35, N_8}, // 2093.00 Hz
-	.note_CS = {33, N_8}, // 2217.46 Hz
-	.note_D = {31, N_8}, // 2349.32 Hz
-	.note_DS = {29, N_8}, // 2489.02 Hz
-	.note_E = {27, N_8}, // 2637.02 Hz
-	.note_F = {26, N_8}, // 2793.83 Hz
-	.note_FS = {24, N_8}, // 2959.96 Hz
-	.note_G = {23, N_8}, // 3135.96 Hz
-	.note_GS = {22, N_8}, // 3322.44 Hz
-	.note_A = {20, N_8}, // 3520.00 Hz
-	.note_AS = {19, N_8}, // 3729.31 Hz
-	.note_B = {18, N_8} // 3951.07 Hz
-	}
-};*/
 
 void _mydelay(uint8_t _delay) {
 	for (uint8_t i=0;i < _delay;i++ ){ 
@@ -406,44 +267,6 @@ static void _tonenew(uint8_t _divisor, uint8_t _prescaler,uint16_t _delay)
 }
 
 
-#define NOTE_2A		-24
-#define NOTE_3A		-12
-
-#define NOTE_4A		0
-#define NOTE_4AS	1
-#define NOTE_4B		2
-
-#define NOTE_5C		3
-#define NOTE_5CS	4
-#define NOTE_5D		5
-#define NOTE_5DS	6
-#define NOTE_5E		7
-#define NOTE_5F		8
-#define NOTE_5FS	9
-#define NOTE_5G		10
-#define NOTE_5GS	11
-#define NOTE_5A		12
-#define NOTE_5AS	13
-#define NOTE_5B		14
-
-
-
-#define NOTE_5A		12
-#define NOTE_5AS	13
-#define NOTE_5B		14
-
-#define NOTE_6C		15
-#define NOTE_6CS	16
-#define NOTE_6D		17
-#define NOTE_6DS	18
-#define NOTE_6E		19
-#define NOTE_6F		20
-#define NOTE_6FS	21
-#define NOTE_6G		22
-#define NOTE_6GS	23
-#define NOTE_6A		24
-#define NOTE_6AS	25
-#define NOTE_6B		26
 
 /***************************************************
  *  play_frequency
@@ -509,84 +332,154 @@ void play_frequency(uint16_t freq_hz, int _duration) {
  *   I'll start by trying to work out what the frequency of the note is
  *   https://pages.mtu.edu/~suits/NoteFreqCalcs.html
  */
-void play_note(int _semitone, int _duration) {
+void play_note(uint8_t _note, uint8_t _duration) {
+	uint8_t _prescaler;
+	uint8_t divisor;
 
-	//if (_semitone < 0) led_status(2,-_semitone);
-	//else led_status(3,_semitone);
+	_note = 57;
 
-	uint16_t F0 = 440	; 			// frequency of known note, we are talking A4
-	uint16_t note_frequency = F0;
-	//F0 = 16.35;		// this is C-0
+	//led_status(1,_note);
+	//led_status(2,_duration);
+	//return;
+	//led_status(i+1,duration)
+	//uint8_t semitone;
+	//uint8_t octave;
 
-	double a = 1.059463094359;
 
-	if (_semitone < 0) {
-		
-		for (int i=0;i--;i>_semitone) {
-			a = a / a;
-		}
-		note_frequency = F0 * a;
-	} else if (_semitone > 0) {
-		note_frequency = F0;
-		for (int i=0;i++;i<_semitone) {
-			a = a * a;
-		}
-		note_frequency = F0 * a;
+	if (_note <  24) {		// Work out the prescaler
+		_prescaler = N_256;
+		divisor = divisors[_note];
+		//octave = _note/12;
+		//semitone = _note - 12*octave;
+		//led_status(octave,semitone);
+
+	} else if (_note < 60 ) {
+		_prescaler = N_64;
+		divisor = divisors[_note-24];
+		//led_status(1,_note-24);
+		//octave = _note/12-24;
+		//semitone = _note - 12*octave;
+		//led_status(octave,semitone);
 	} else {
-		note_frequency = F0;
+		_prescaler = N_8;
+		divisor = divisors[_note-60];
+		//led_status(1,_note-60);
+		//octave = _note/12-60;
+		//semitone = _note - 12*octave;
+		//led_status(octave,semitone);
 	}
-
 	
+	//return;
+	//divisor = 
 
-	//note_frequency = 440 + 10*_semitone;
+	TCCR0B = (TCCR0B & ~((1<<CS02)|(1<<CS01)|(1<<CS00))) | _prescaler;
 
+	OCR0A = divisor;		// set count
+	OCR0B = divisor/2;		// set count for duty, so duty = OCR0B/OCR0A
+	TCCR0A |= _BV(COM0B0);
 
-	//float a = 2^(1/12);
-	//double a = pow(2,(1/12));
-
-	//double a = 1.059463094359;
-	//double a = pow(2,0.08333);
-	//float a = 1.059463094359;		// or hard code it...
-
-	//note_frequency = F0 * (a)^(semitonesaway);
-	//note_frequency = F0 * pow(a,_semitone);
-
-	//note_frequency = F0 * pow(1.0594,_semitone);
-	//note_frequency = pow(a,_semitone);
-	//double somethingstrange = pow(a,_semitone);
-
-
-	play_frequency(note_frequency,_duration);
-
+	_mydelay(_duration);
+	TCCR0B &= ~((1<<CS02)|(1<<CS01)|(1<<CS00)); // stop the timer
+	_mydelay(_duration);
 
 }
 
-void playtune_a4(void) {
 
-//	play_frequency(1,20);
-	//play_frequency(10,20);
-//	play_frequency(10000,20);
-//	play_frequency((float)100,20);
-	//play_note(0, 20);
 
+/***************************************************
+ *  playtune_melody
+ ***************************************************
+ *  This should play a tune 
+ *   
+ */
+
+	/*play_note(NOTE_5G,1);
 	play_note(NOTE_5G,1);
-	play_note(NOTE_5G,1);
-	play_note(NOTE_5A,2);
-	play_note(NOTE_5G,2);
-	play_note(NOTE_6C,1);
-	play_note(NOTE_5B,2);
+	play_note(NOTE_5G,1);*/
+//void playtune_melody(byte *_melody,uint8_t _size) {
+void playtune_melody(notes_t *melody,uint8_t _size) {
+	// input be a pointer to an array?
 
-/*	for	(int n=0;n<10;n+=3) {
-		play_note(n,1);
+	//uint8_t thenote;
+	//uint8_t duration;
 
+	
+
+	//uint8_t * tune_ptr;
+	//_size = 7;
+	
+	//tune_ptr = tune_scale_notes;			_size = 7;			// works for first
+	//tune_ptr = tune_scale_notes_duration;	_size = 7;
+	//tune_ptr = (uint8_t) tune_scale_5;	_size = 7;
+	//tune_ptr = (uint8_t) tune_scale_6;	_size = 7;
+	//tune_ptr = (uint8_t) tune_nokia;		_size = 13;
+	//tune_ptr = (uint8_t) tune_happybirthday;	_size = 13;
+
+	//tune_ptr = &tune_happybirthday;	_size = 13;	/ nope
+	//tune_ptr = (uint8_t) &tune_happybirthday->note;	_size = 13;
+
+
+	//tune_ptr = (uint8_t) tune_happybirthday;		// works for first
+
+	//tune_ptr = (uint8_t) tune_test;
+
+
+	for	(int i=0; i <_size; i++) {
+
+
+		//play_note(NOTE_5G,1);
+		//play_note(melody[i].note,melody[i].duration);
+		//thenote = NOTE_5B;
+		//thenote = melody[i].note;
+		//duration = 1;
+
+		//play_note(thenote,duration);
+
+		//play_note(tune_happybirthday[i].note,tune_happybirthday[i].duration);
+		
+		//play_note(notesforsong[i],1);		// that works
+		//thenote = NOTE_5G;
+		//thenote = melody[i].note;
+		//thenote = &melody;
+
+		//thenote = tune_happybirthday[0].note;
+		//thenote = tune_nokia[0].note;
+
+		//thenote = tune_ptr[2*i];	// works
+		//duration = tune_ptr[2*i+1];
+
+		//thenote = tune_test[i].note;
+		//thenote = melody[i].note;
+		//duration = melody[i].duration;
+
+		//led_status(i+1,thenote);
+		//led_status(i+1,duration);
+		//play_note(thenote,duration);
+
+		play_note(melody[i].note,melody[i].duration);
+		//play_note(&melody[i].note,1);
+		
 	}
-*/
 
-/*	for	(int n=0;n<100;n+=10) {
-		play_frequency(440+n,1);
+}
+
+
+/***************************************************
+ *  playtune_scale
+ ***************************************************
+ *  
+ *   
+ */
+void playtune_scale(void) {
+
+	for (uint8_t octave=3; octave <= 3; octave++) {
+		led_status(1,octave);
+		for	(uint8_t i=0; i < 12; i++) {
+			uint8_t note = octave*12+i;
+			play_note(note,2);
+		}
+		_mydelay(4);
 	}
-*/
-
 }
 
 
@@ -690,12 +583,25 @@ void _playtones(void){
 	
 	_setuptone();			// Set up the attiny to play tones
 
+	//playtune_scale();
 
 	//playtune_happybirthday();
 	//playtune_nokia();
 
-	playtune_a4();
 
+	//playtune_melody(tune_happybirthday,sizeof(tune_happybirthday));
+	//led_status(4,sizeof(tune_happybirthday));
+
+	//playtune_melody(tune_happybirthday,sizeof(tune_happybirthday)/2);
+	//playtune_melody(tune_happybirthday,13);
+	//playtune_melody(tune_nokia,13);
+	//playtune_melody(tune_test,sizeof(tune_test)/2);
+
+	//led_status(4,sizeof(tune_scale_3)/2);
+	//playtune_melody(tune_scale_3,sizeof(tune_scale_3)/2);
+	playtune_melody(tune_scale_3,12);
+
+	
 	stop();
 #endif
 	//led_off(LED_RED);
