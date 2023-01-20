@@ -14,8 +14,12 @@
 //#include <avr/sleep.h>
 
 
-#include <main.h>
-#include <functions.h>
+#include "main.h"
+//#include "functions.h"
+#include "functions-led.h"
+#include "functions-sleep.h"
+
+
 
 
 /*******************************************************************************************************************************
@@ -76,6 +80,23 @@ guessagain:;
 	return _return;
 }
 
+
+/***************************************************
+ * check_random 
+ ***************************************************
+ * Check that the random number is between our limits
+ */
+void check_random(uint16_t _return) {
+
+	if (_return < RANDOM_SLEEP_MIN*8) {
+		//led_blink(LED_RED,4);
+		led_status(4,2);
+	}
+	if (_return > RANDOM_SLEEP_MAX*8 + 2){
+		//led_blink(LED_GREEN,4);
+		led_status(4,4);
+	}
+}
 
 
 
