@@ -22,14 +22,14 @@
  *  Delay Routine
  *******************************************************************************************************************************/
 
-/*void _mydelay(uint8_t _delay) {
+void _mydelay(uint8_t _delay) {
 	for (uint8_t i=0;i < _delay;i++ ){ 
 		_delay_ms(80);
 	}
 
-}*/
+}
 void _mydelay_new(void) {
-	
+
 }
 
 
@@ -42,7 +42,7 @@ void _mydelay_new(void) {
  ***************************************************
  * 
  */
-/*
+
 static uint16_t random_number = 0;
 static uint16_t lfsr16_next(uint16_t n) {
     return (n >> 0x01U) ^ (-(n & 0x01U) & 0xB400U);    
@@ -76,7 +76,7 @@ guessagain:;
 	return _return;
 }
 
-*/
+
 
 
 
