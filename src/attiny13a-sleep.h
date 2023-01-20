@@ -195,7 +195,7 @@ uint8_t tune_scale_notes[7] = {NOTE_4C,NOTE_4D,NOTE_4E,NOTE_4F,NOTE_4G,NOTE_4A,N
 
 uint8_t tune_scale_notes_duration[14] = {NOTE_4C,1,NOTE_4D,1,NOTE_4E,1,NOTE_4F,1,NOTE_4G,1,NOTE_4A,NOTE_4B};
 
-notes_t tune_scale_0[12] {
+const notes_t tune_scale_0[] PROGMEM = {
   {NOTE_0C,1},
   {NOTE_0CS,1},
   {NOTE_0D,1},
@@ -210,7 +210,7 @@ notes_t tune_scale_0[12] {
   {NOTE_0B,1}
 };
 
-notes_t tune_scale_3[12] {
+const notes_t tune_scale_3[12] PROGMEM = {
   {NOTE_3C,2},
   {NOTE_3CS,2},
   {NOTE_3D,2},
@@ -225,6 +225,21 @@ notes_t tune_scale_3[12] {
   {NOTE_3B,2}
 };
 
+const notes_t tune_scale_4[12] PROGMEM = {
+  {NOTE_4C,2},
+  {NOTE_4CS,2},
+  {NOTE_4D,2},
+  {NOTE_4DS,2},
+  {NOTE_4E,2},
+  {NOTE_4F,2},
+  {NOTE_4FS,2},
+  {NOTE_4G,2},
+  {NOTE_4GS,2},
+  {NOTE_4A,2},
+  {NOTE_4AS,2},
+  {NOTE_4B,2}
+};
+/*
 notes_t tune_test[25]= {
   {1,1},
   {2,1},
@@ -251,9 +266,11 @@ notes_t tune_test[25]= {
   {23,1},
   {24,1},
   {25,1}
-};
+};*/
 
-notes_t tune_nokia[13] = {
+
+
+const notes_t tune_nokia[13] PROGMEM = {
   {NOTE_6E,1},
   {NOTE_6D,1},
   {NOTE_5FS,2},
@@ -272,19 +289,14 @@ notes_t tune_nokia[13] = {
 
 };
 
-
-
-
-notes_t tune_happybirthday[25] = {
+const notes_t tune_test[] PROGMEM = {
   {1,1},
   {2,1},
   {3,2},
-  {4,2},{67,2},{67,2},
+  {4,2},{5,2},{6,2},{7,2},{8,2},{9,2}
+};
 
-  {67,2},{67,2},
-
-  {67,2},{67,2},{67,2},{67,2},{67,2},
-
+const notes_t tune_happybirthday[] PROGMEM = {
 	{NOTE_5G,1},
 	{NOTE_5G,1},
 	{NOTE_5A,1},
@@ -297,10 +309,23 @@ notes_t tune_happybirthday[25] = {
 	{NOTE_5A,1},
 	{NOTE_5G,1},
 	{NOTE_6D,1},
-	{NOTE_6D,4}
+	{NOTE_6C,4},
 
+	{NOTE_5G,1},
+	{NOTE_5G,1},
+	{NOTE_6G,1},
+	{NOTE_6E,1},
+	{NOTE_6C,1},
+	{NOTE_5B,1},
+	{NOTE_5A,1},
+
+	{NOTE_6F,1},
+	{NOTE_6F,1},
+	{NOTE_6E,1},
+	{NOTE_6C,1},
+	{NOTE_6D,1},
+	{NOTE_6C,1}
 	
-
 };
 
 

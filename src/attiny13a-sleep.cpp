@@ -38,7 +38,7 @@
 
 
 
-uint8_t mcucr1, mcucr2;
+//uint8_t mcucr1, mcucr2;
 
 int REGULAR_HI_MS = 100;        // was 800
 int WAKE_INDICATOR_HI_MS = 0; //200;
@@ -223,6 +223,7 @@ static void _setuptone(void){
  * 
  */
 #ifndef IS_BUZZER	
+
 static void stop(void)
 {
 
@@ -247,83 +248,7 @@ static void stop(void)
 #ifndef IS_BUZZER		
 
 
-static void _tonenew(uint8_t _divisor, uint8_t _prescaler,uint16_t _delay)
-{
-	// So, TCCR0B is TCCR0B AND...
-	// Setting the prescaler...
-	// so we take TCCR0B as it currently stands, I think the ~ makes it zero the prescaler bits first
-	// then we OR it with what prescaler bits we want
-	// so set prescaler then set the count...
 
-	TCCR0B = (TCCR0B & ~((1<<CS02)|(1<<CS01)|(1<<CS00))) | _prescaler;
-
-	OCR0A = _divisor;		// set count
-	OCR0B = _divisor/2;		// set count for duty, so duty = OCR0B/OCR0A
-	TCCR0A |= _BV(COM0B0);
-
-	_mydelay(_delay);
-	TCCR0B &= ~((1<<CS02)|(1<<CS01)|(1<<CS00)); // stop the timer
-	_mydelay(_delay);
-}
-
-
-
-/***************************************************
- *  play_frequency
- ***************************************************
- *   Play a particular frequency for a duration
- * 
- * 
- * 	
-	*
-	*  now based on the prescaler, we calculate the count...
-	* 
-	* so, lets say 440hz.  at 440hz, 
-	* Processor clock: 9.6MHz
-	* prescaler of N_64
-	* so clock becomes 150kHz.  
-	* 
-	*
- *   
- *   
- */
-
-void play_frequency(uint16_t freq_hz, int _duration) {
-
-	uint8_t _prescaler,prescaler_number;
-	uint8_t divisor;
-
-	// Math routines
-	// 1200000L converts to (long)1200000
-
-
-	if (freq_hz <  64) {		// Work out the prescaler
-		_prescaler = N_256;
-		//prescaler_number = 256;		// maybe i have to calculate the divisor here?
-		divisor = 1200000/(256 * freq_hz );
-	} else if (freq_hz < 500 ) {
-		_prescaler = N_64;
-		//prescaler_number = 64;
-		divisor = 1200000/(64 * freq_hz );
-	} else {
-		_prescaler = N_8;
-		//prescaler_number = 8;
-		divisor = 1200000/(8 * freq_hz );
-	}
-
-	
-	TCCR0B = (TCCR0B & ~((1<<CS02)|(1<<CS01)|(1<<CS00))) | _prescaler;
-	OCR0A = divisor;		// set count
-	OCR0B = divisor/2;		// set count for duty, so duty = OCR0B/OCR0A
-	TCCR0A |= _BV(COM0B0);
-
-	_mydelay(_duration);
-	
-	TCCR0B &= ~((1<<CS02)|(1<<CS01)|(1<<CS00)); // stop the timer
-	_mydelay(_duration);	
-
-
-}
 
 /***************************************************
  *  play_note
@@ -346,8 +271,13 @@ void play_note(uint8_t _note, uint8_t _duration) {
 	//uint8_t octave;
 
 	// check to see if shits fucked
-	if ((_note < 0) || (_note > 83) ) {
+	//if ((_note < 0) || (_note > 0) ) led_status(4,2);
+	
+	if (_note < 0)  {
 		led_status(4,2);
+	}
+	if (_note > 83)  {
+		led_status(4,3);
 	}
 
 	if (_note <  24) {		// Work out the prescaler
@@ -397,71 +327,10 @@ void play_note(uint8_t _note, uint8_t _duration) {
  *   
  */
 
-	/*play_note(NOTE_5G,1);
-	play_note(NOTE_5G,1);
-	play_note(NOTE_5G,1);*/
-
 void playtune_melody(notes_t *melody,uint8_t _size) {
-	// input be a pointer to an array?
-
-	//uint8_t thenote;
-	//uint8_t duration;
-
-	
-
-	//uint8_t * tune_ptr;
-	//_size = 7;
-	
-	//tune_ptr = tune_scale_notes;			_size = 7;			// works for first
-	//tune_ptr = tune_scale_notes_duration;	_size = 7;
-	//tune_ptr = (uint8_t) tune_scale_5;	_size = 7;
-	//tune_ptr = (uint8_t) tune_scale_6;	_size = 7;
-	//tune_ptr = (uint8_t) tune_nokia;		_size = 13;
-	//tune_ptr = (uint8_t) tune_happybirthday;	_size = 13;
-
-	//tune_ptr = &tune_happybirthday;	_size = 13;	/ nope
-	//tune_ptr = (uint8_t) &tune_happybirthday->note;	_size = 13;
-
-
-	//tune_ptr = (uint8_t) tune_happybirthday;		// works for first
-
-	//tune_ptr = (uint8_t) tune_test;
-
 
 	for	(int i=0; i <_size; i++) {
-
-
-		//play_note(NOTE_5G,1);
-		//play_note(melody[i].note,melody[i].duration);
-		//thenote = NOTE_5B;
-		//thenote = melody[i].note;
-		//duration = 1;
-
-		//play_note(thenote,duration);
-
-		//play_note(tune_happybirthday[i].note,tune_happybirthday[i].duration);
-		
-		//play_note(notesforsong[i],1);		// that works
-		//thenote = NOTE_5G;
-		//thenote = melody[i].note;
-		//thenote = &melody;
-
-		//thenote = tune_happybirthday[0].note;
-		//thenote = tune_nokia[0].note;
-
-		//thenote = tune_ptr[2*i];	// works
-		//duration = tune_ptr[2*i+1];
-
-		//thenote = tune_test[i].note;
-		//thenote = melody[i].note;
-		//duration = melody[i].duration;
-
-		//led_status(i+1,thenote);
-		//led_status(i+1,duration);
-		//play_note(thenote,duration);
-
-		play_note(melody[i].note,melody[i].duration);
-		//play_note(&melody[i].note,1);
+		play_note(pgm_read_byte(&melody[i].note),pgm_read_byte(&melody[i].duration));
 		
 	}
 
@@ -476,7 +345,7 @@ void playtune_melody(notes_t *melody,uint8_t _size) {
  */
 void playtune_scale(void) {
 
-	for (uint8_t octave=3; octave <= 3; octave++) {
+	for (uint8_t octave=3; octave <= 5; octave++) {
 		led_status(1,octave);
 		for	(uint8_t i=0; i < 12; i++) {
 			uint8_t note = octave*12+i;
@@ -486,70 +355,6 @@ void playtune_scale(void) {
 	}
 }
 
-
-/*
- * I think that in future, the following should be reduced into maybe an array of notes and duration.. so
- * NOTE_C5,1,NOTE_G3,2
- * 
-*/
-
-void playtune_happybirthday(void){
-	_tonenew(95, N_8,1);		//G 5
-	_tonenew(95, N_8,1);		//G 5
-	_tonenew(84, N_8,2);		//A 5
-	_tonenew(95, N_8,2);		//G 5
-	_tonenew(71, N_8,1);		//C 6
-	_tonenew(75, N_8,2);		//B 5
-	_mydelay(4);
-	_tonenew(95, N_8,1);		//G 5
-	_tonenew(95, N_8,1);		//G 5
-	_tonenew(84, N_8,2);		//A 5
-	_tonenew(95, N_8,2);		//G 5
-	_tonenew(63, N_8,2);		//D 6
-	_tonenew(71, N_8,1);		//C 6
-	_mydelay(4);
-	_tonenew(95, N_8,1);		//G 5
-	_tonenew(95, N_8,1);		//G 5
-	_tonenew(47, N_8,1);		//G 6
-	_tonenew(56, N_8,1);		//E 6
-	_tonenew(71, N_8,1);		//C 6
-	_tonenew(75, N_8,1);		//B 5
-	_tonenew(84, N_8,1);		//A 5
-	_mydelay(2);
-	_tonenew(53, N_8,1);		//F	6
-	_tonenew(53, N_8,1);		//F 6
-	_tonenew(56, N_8,1);		//E 6
-	_tonenew(71, N_8,1);		//C 6
-	_tonenew(63, N_8,2);		//D 6
-	_tonenew(71, N_8,1);		//C 6
-}
-
-void playtune_nokia(void){
-	// E D f# g# 
-	// c# B D E
-	// B A c# E A
-	_tonenew(56, N_8,1);		//E 6
-	_tonenew(63, N_8,1);		//D 6
-	_tonenew(100, N_8,2);		//FS 5
-	_tonenew( 89, N_8,1);		//GS 5
-
-	_tonenew( 67, N_8,1);		//CS 6
-	_tonenew( 75, N_8,1);		//B  5
-	_tonenew(127, N_8,2);		//D	 5
-	_tonenew(113, N_8,1);		//E	 5
-
-	_tonenew( 75, N_8,1);		//B  5
-	_tonenew( 84, N_8,1);		//A  5
-	_tonenew(134, N_8,2);		//CS 5
-	_tonenew(113, N_8,2);		//E	 5
-	_tonenew( 84, N_8,2);		//A  5
-
-/*	_tonenew(134, N_8,1);		//CS 5
-	_tonenew(127, N_8,1);		//D	 5
-	_tonenew( 75, N_8,1);		//B 5
-	_tonenew(142, N_8,2);		//E	 5*/
-
-}
 
 
 
@@ -588,22 +393,29 @@ void _playtones(void){
 	_setuptone();			// Set up the attiny to play tones
 
 	//playtune_scale();
+	//playtune_melody(tune_scale_3,sizeof(tune_scale_3)/2);
+	//for	(int i=0; i <13; i++) play_note(*tune_scale_3[i].note,2);
 
-	//playtune_happybirthday();
-	//playtune_nokia();
 
+	//playtune_melody(tune_test,sizeof(tune_test)/2);
+	
 
-	//playtune_melody(tune_happybirthday,sizeof(tune_happybirthday));
+	//playtune_melody(tune_nokia,sizeof(tune_nokia)/2);
+	//playtune_melody(tune_nokia,13);
+	//for	(int i=0; i <13; i++) play_note(tune_nokia[i].note,tune_nokia[i].duration);
+	
+
+	
 	//led_status(4,sizeof(tune_happybirthday));
 
-	//playtune_melody(tune_happybirthday,sizeof(tune_happybirthday)/2);
+	playtune_melody(tune_happybirthday,sizeof(tune_happybirthday)/2);
 	//playtune_melody(tune_happybirthday,13);
-	//playtune_melody(tune_nokia,13);
+	
 	//playtune_melody(tune_test,sizeof(tune_test)/2);
 
-	//led_status(4,sizeof(tune_scale_3)/2);
-	//playtune_melody(tune_scale_3,sizeof(tune_scale_3)/2);
-	playtune_melody(tune_scale_4,12);
+	
+	
+	//playtune_melody(tune_scale_4,12);
 
 	
 	stop();
