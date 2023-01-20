@@ -61,6 +61,7 @@ void random_init(void) {		// fuck the seed?
 }
 
 uint16_t _random( uint16_t _min, uint16_t _max) {
+	random_init();	// Re-initialize the random number seed every time
 	uint16_t _return=0;
 guessagain:;
 	//remainder = dividend % divisor;
@@ -77,6 +78,9 @@ guessagain:;
 		//led_blink(LED_RED,8);
 		goto guessagain;
 	}
+
+	//led_status(3,_return);			// debug for when it doesn't look random anymore
+
 	return _return;
 }
 

@@ -81,12 +81,7 @@ const notes_t tune_sms[] PROGMEM = {
 };
 
 
-const notes_t tune_test[] PROGMEM = {
-  {1,1},
-  {2,1},
-  {3,2},
-  {4,2},{5,2},{6,2},{7,2},{8,2},{9,2}
-};
+
 
 const notes_t tune_happybirthday[] PROGMEM = {
 	{NOTE_5G,1},
@@ -120,7 +115,12 @@ const notes_t tune_happybirthday[] PROGMEM = {
 	
 };
 
-
+const notes_t tune_test[] PROGMEM = {
+  {1,1},
+  {2,1},
+  {3,2},
+  {4,2},{5,2},{6,2},{7,2},{8,2},{9,2}
+};
 
 /* We then just need a table of divisors for the notes within one octave. To calculate the divisor for a given note frequency we first work out:
 
@@ -209,6 +209,22 @@ static void _setuptone(void){
 }
 #endif
 
+/***************************************************
+ *  Stop tones
+ ***************************************************
+ * 
+ */
+#ifndef IS_BUZZER	
+static void stop(void)
+{
+
+	TCCR0B &= ~((1<<CS02)|(1<<CS01)|(1<<CS00)); // stop the timer.... This should absoloutly stop the timer
+  	TCCR0A = 0; // stop the counter    // fuck knows why... fuck knos why the other one dind't work				////////////////disable this if it stops working
+
+	digitalWrite(BUZZER_PIN, LOW); // set the output to low
+}
+
+#endif
 
 
 
@@ -254,6 +270,7 @@ void play_note(uint8_t _note, uint8_t _duration) {
 
 	_mydelay(_duration);
 	TCCR0B &= ~((1<<CS02)|(1<<CS01)|(1<<CS00)); // stop the timer
+	digitalWrite(BUZZER_PIN, LOW); // set the output to low
 	_mydelay(_duration);
 
 }
@@ -413,20 +430,16 @@ void _playtones(void){
 
 	
 	// pick one tune
-	uint16_t decision = _random( 0, 255);
+	uint16_t decision = _random( 0, 7);
+	led_status(3,decision);	// check random numbers
 
-
-	if (decision < 64 ) playtune_melody(tune_nokia,sizeof(tune_nokia)/2);
-	else if (decision < 128) playtune_melody(tune_happybirthday,sizeof(tune_happybirthday)/2);
-	else playtune_melody(tune_happybirthday,sizeof(tune_sms)/2);
-
-
-
+	if (decision < 2 ) playtune_melody(tune_happybirthday,sizeof(tune_happybirthday)/2);
+	else if (decision < 5) playtune_melody(tune_nokia,sizeof(tune_nokia)/2);
+	else playtune_melody(tune_sms,sizeof(tune_sms)/2);
 
 	
-	//stop();
 #endif
-	//led_off(LED_RED);
+
 }
 
 
@@ -448,6 +461,7 @@ void setup() {
 	led_status(1,1);
 	  
 	_playtones();
+	stop();
 
 }
 
