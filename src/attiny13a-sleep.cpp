@@ -365,64 +365,6 @@ void playtune_scale(void) {
 
 
 
-/***************************************************
- *  Play Tones
- ***************************************************
- * 
- */
-void _playtones(void){
-//	led_status(4,1);
-
-#ifdef IS_BUZZER	
-	pinMode(BUZZER_PIN, OUTPUT);
-
-	for	(uint8_t n=0;n<2;n++) {
-		for (int i = 0; i < 2; i++) {
-			led_on(BUZZER_PIN);
-			_delay_ms(30);
-			led_off(BUZZER_PIN);
-			_delay_ms(10);
-		}
-		_delay_ms(40);
-	}
-
-#else						// Otherwise we are using PWM
-
-	// 9.6MHz internal oscilator... lol, no, i think this is 1.2MHz for the ATTiny13a
-	
-	_setuptone();			// Set up the attiny to play tones
-
-	//playtune_scale();
-	//playtune_melody(tune_scale_3,sizeof(tune_scale_3)/2);
-	//for	(int i=0; i <13; i++) play_note(*tune_scale_3[i].note,2);
-
-
-	//playtune_melody(tune_test,sizeof(tune_test)/2);
-	
-
-	//playtune_melody(tune_nokia,sizeof(tune_nokia)/2);
-	//playtune_melody(tune_nokia,13);
-	//for	(int i=0; i <13; i++) play_note(tune_nokia[i].note,tune_nokia[i].duration);
-	
-
-	
-	//led_status(4,sizeof(tune_happybirthday));
-
-	playtune_melody(tune_happybirthday,sizeof(tune_happybirthday)/2);
-	//playtune_melody(tune_happybirthday,13);
-	
-	//playtune_melody(tune_test,sizeof(tune_test)/2);
-
-	
-	
-	//playtune_melody(tune_scale_4,12);
-
-	
-	stop();
-#endif
-	//led_off(LED_RED);
-}
-
 
 
 
@@ -581,6 +523,50 @@ void system_sleep(byte b) {
   
 }
 
+
+/***************************************************
+ *  Play Tones
+ ***************************************************
+ * 
+ */
+void _playtones(void){
+//	led_status(4,1);
+
+#ifdef IS_BUZZER	
+	pinMode(BUZZER_PIN, OUTPUT);
+
+	for	(uint8_t n=0;n<2;n++) {
+		for (int i = 0; i < 2; i++) {
+			led_on(BUZZER_PIN);
+			_delay_ms(30);
+			led_off(BUZZER_PIN);
+			_delay_ms(10);
+		}
+		_delay_ms(40);
+	}
+
+#else						// Otherwise we are using PWM
+
+	// 9.6MHz internal oscilator... lol, no, i think this is 1.2MHz for the ATTiny13a
+	
+	_setuptone();			// Set up the attiny to play tones
+
+	
+	// pick one tune
+
+	//if (_random( 0, 1) == 0 ) playtune_melody(tune_nokia,sizeof(tune_nokia)/2);
+
+	//else playtune_melody(tune_happybirthday,sizeof(tune_happybirthday)/2);
+
+	playtune_melody(tune_nokia,sizeof(tune_nokia)/2);
+	
+
+
+	
+	stop();
+#endif
+	//led_off(LED_RED);
+}
 
 
 
