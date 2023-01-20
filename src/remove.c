@@ -1,11 +1,30 @@
 
+/*
+uint16_t _random_NEW( uint16_t _min, uint16_t _max) {
+	pinMode(PIN_RANDOM, INPUT);
+	uint8_t Rand1 = analogRead((analog_pin_t) PIN_RANDOM);
+	uint8_t Rand2 = analogRead((analog_pin_t) PIN_RANDOM);
+	uint16_t _return =  Rand1 + (Rand2<<8);
 
-////// Includes //////////
-#include "Arduino.h"
+guessagain:
+	//remainder = dividend % divisor;
+	uint16_t _modulus = (_max - _min);
+	_return =   lfsr16_next(random_number);
+	_return =   _return % _modulus;
+	_return += _min;
 
-#include <neeppeep-functions.h>>
-//#include <attiny13a-sleep.h>
-//#include <sleepfunction.h>
+	if (_return < _min) {
+		led_blink(LED_RED,4);
+		goto guessagain;
+	}
+	if (_return > _max){
+		led_blink(LED_RED,8);
+		goto guessagain;
+	}
+	return _return;
+}
+*/
+
 
 /***************************************************
  *  play_frequency
@@ -145,4 +164,3 @@ void playtune_nokia(void){
 
 }
 */
-

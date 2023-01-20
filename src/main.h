@@ -1,6 +1,22 @@
-
 #ifndef MAIN_H
 #define MAIN_H
+
+
+// includes
+#include <Arduino.h>
+#include <avr/io.h>
+
+
+//#define __DELAY_BACKWARD_COMPATIBLE__
+//#include <util/delay.h>
+
+//#include <avr/interrupt.h>
+#include <avr/pgmspace.h>
+
+//#include <avr/interrupt.h>
+
+//#include <avr/power.h>
+//#include <avr/sleep.h>
 
 
 
@@ -17,7 +33,7 @@
 #define	BUZZER_PIN	                PB1
 #define LED_RED  	                PB4
 #define LED_GREEN	                PB0 
-
+#define PIN_RANDOM					PB5
 
 #define BLINK_INTERVAL_ON 			100		//ms
 #define BLINK_INTERVAL_OFF 			100		//ms
@@ -43,8 +59,7 @@
 
 
 
-uint16_t RANDOM_SLEEP_MIN = 1;			/// was 7
-uint16_t RANDOM_SLEEP_MAX = 8;		// 2 is very regular, was 30.. 4 seemed .. ok but regular, 16 seems maybe too long?
+
 
 
 
@@ -72,8 +87,12 @@ uint16_t RANDOM_SLEEP_MAX = 8;		// 2 is very regular, was 30.. 4 seemed .. ok bu
 #define	N_1024	(_BV(CS02)|_BV(CS00))   // clk/1024 from prescaler
 
 
+typedef struct s_notes {
+	uint8_t	note; 
+	uint8_t duration;
+} notes_t;
 
-
+//const uint8_t divisors[];
 
 #define NOTE_0C   0
 #define NOTE_0CS	1
@@ -166,177 +185,6 @@ uint16_t RANDOM_SLEEP_MAX = 8;		// 2 is very regular, was 30.. 4 seemed .. ok bu
 #define NOTE_6A		(uint8_t) 81
 #define NOTE_6AS	(uint8_t) 82
 #define NOTE_6B		(uint8_t) 83
-
-const uint8_t divisors[] = {142,134,127,120,113,106,100,95,89,84,79,75,71,67,63,59,56,53,50,47,44,42,39,37,35,33,31,29,27,26,24,23,22,20,19,18};
-
-typedef struct s_notes {
-	uint8_t	note; 
-	uint8_t duration;
-} notes_t;
-
-
-//{ // octave 0
-	//.note_C = {142, N_256}, // 16.35 Hz
-	//.note_CS = {134, N_256}, // 17.32 Hz
-/*
-notes_t tune_happybirthday[25] = {
-	{.note = NOTE_5G, .duration = 1},
-	{.note = NOTE_5G, .duration = 1},
-	{.note = NOTE_5A, .duration = 1},
-	{.note = NOTE_5G, .duration = 1},
-	{.note = NOTE_6C, .duration = 1},
-	{.note = NOTE_5B, .duration = 1}
-};*/
-
-
-uint8_t tune_scale_notes[7] = {NOTE_4C,NOTE_4D,NOTE_4E,NOTE_4F,NOTE_4G,NOTE_4A,NOTE_4B};
-
-uint8_t tune_scale_notes_duration[14] = {NOTE_4C,1,NOTE_4D,1,NOTE_4E,1,NOTE_4F,1,NOTE_4G,1,NOTE_4A,NOTE_4B};
-
-const notes_t tune_scale_0[] PROGMEM = {
-  {NOTE_0C,1},
-  {NOTE_0CS,1},
-  {NOTE_0D,1},
-  {NOTE_0DS,1},
-  {NOTE_0E,1},
-  {NOTE_0F,1},
-  {NOTE_0FS,1},
-  {NOTE_0G,1},
-  {NOTE_0GS,1},
-  {NOTE_0A,1},
-  {NOTE_0AS,1},
-  {NOTE_0B,1}
-};
-
-const notes_t tune_scale_3[12] PROGMEM = {
-  {NOTE_3C,2},
-  {NOTE_3CS,2},
-  {NOTE_3D,2},
-  {NOTE_3DS,2},
-  {NOTE_3E,2},
-  {NOTE_3F,2},
-  {NOTE_3FS,2},
-  {NOTE_3G,2},
-  {NOTE_3GS,2},
-  {NOTE_3A,2},
-  {NOTE_3AS,2},
-  {NOTE_3B,2}
-};
-
-const notes_t tune_scale_4[12] PROGMEM = {
-  {NOTE_4C,2},
-  {NOTE_4CS,2},
-  {NOTE_4D,2},
-  {NOTE_4DS,2},
-  {NOTE_4E,2},
-  {NOTE_4F,2},
-  {NOTE_4FS,2},
-  {NOTE_4G,2},
-  {NOTE_4GS,2},
-  {NOTE_4A,2},
-  {NOTE_4AS,2},
-  {NOTE_4B,2}
-};
-/*
-notes_t tune_test[25]= {
-  {1,1},
-  {2,1},
-  {3,1},
-  {4,1},
-  {5,1},
-  {6,1},
-  {7,1},
-  {8,1},
-  {9,1},
-  {10,1},
-  {11,1},
-  {12,1},
-  {13,1},
-  {14,1},
-  {15,1},
-  {16,1},
-  {17,1},
-  {18,1},
-  {19,1},
-  {20,1},
-  {21,1},
-  {22,1},
-  {23,1},
-  {24,1},
-  {25,1}
-};*/
-
-
-
-const notes_t tune_nokia[] PROGMEM = {
-  {NOTE_6E,1},
-  {NOTE_6D,1},
-  {NOTE_5FS,2},
-  {NOTE_5GS,1},
-
-  {NOTE_6CS,1},
-  {NOTE_5B,1},
-  {NOTE_5D,2},
-  {NOTE_5E,1},
-
-  {NOTE_5B,1},
-  {NOTE_5A,1},
-  {NOTE_5CS,2},
-  {NOTE_5E,2},
-  {NOTE_5A,2}
-
-};
-
-const notes_t tune_sms[] PROGMEM = {
-  {NOTE_5A,1},
-  {NOTE_5A,1},
-  {NOTE_5A,1},
-  {NOTE_5A,3},
-  {NOTE_5A,3},
-  {NOTE_5A,1},
-  {NOTE_5A,1},
-  {NOTE_5A,1}
-};
-
-
-const notes_t tune_test[] PROGMEM = {
-  {1,1},
-  {2,1},
-  {3,2},
-  {4,2},{5,2},{6,2},{7,2},{8,2},{9,2}
-};
-
-const notes_t tune_happybirthday[] PROGMEM = {
-	{NOTE_5G,1},
-	{NOTE_5G,1},
-	{NOTE_5A,1},
-	{NOTE_5G,1},
-	{NOTE_6C,1},
-	{NOTE_5B,4},
-
-	{NOTE_5G,1},
-	{NOTE_5G,1},
-	{NOTE_5A,1},
-	{NOTE_5G,1},
-	{NOTE_6D,1},
-	{NOTE_6C,4},
-
-	{NOTE_5G,1},
-	{NOTE_5G,1},
-	{NOTE_6G,1},
-	{NOTE_6E,1},
-	{NOTE_6C,1},
-	{NOTE_5B,1},
-	{NOTE_5A,1},
-
-	{NOTE_6F,1},
-	{NOTE_6F,1},
-	{NOTE_6E,1},
-	{NOTE_6C,1},
-	{NOTE_6D,1},
-	{NOTE_6C,1}
-	
-};
 
 
 ///// rubbish here

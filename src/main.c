@@ -31,8 +31,9 @@
 #include "millionUtil.h"         //not needed if compiled with Arduino & Arduino-Tiny
 #endif
 
-#include <attiny13a-sleep.h>
-#include <sleepfunction.h>
+#include <main.h>
+#include <functions.h>
+//#include <functions-sleep.h>
 
 
 
@@ -43,6 +44,87 @@
 int REGULAR_HI_MS = 100;        // was 800
 int WAKE_INDICATOR_HI_MS = 0; //200;
 int INITIAL_BEEP_COUNT = 3;   // number of "test" beeps before we go into the real loop
+
+
+long countSleep=0;
+long countSleepLimit=0;
+
+uint16_t RANDOM_SLEEP_MIN = 1;			/// was 7
+uint16_t RANDOM_SLEEP_MAX = 8;		// 2 is very regular, was 30.. 4 seemed .. ok but regular, 16 seems maybe too long?
+
+
+const uint8_t divisors[] = {142,134,127,120,113,106,100,95,89,84,79,75,71,67,63,59,56,53,50,47,44,42,39,37,35,33,31,29,27,26,24,23,22,20,19,18};
+
+
+const notes_t tune_nokia[] PROGMEM = {
+  {NOTE_6E,1},
+  {NOTE_6D,1},
+  {NOTE_5FS,2},
+  {NOTE_5GS,1},
+
+  {NOTE_6CS,1},
+  {NOTE_5B,1},
+  {NOTE_5D,2},
+  {NOTE_5E,1},
+
+  {NOTE_5B,1},
+  {NOTE_5A,1},
+  {NOTE_5CS,2},
+  {NOTE_5E,2},
+  {NOTE_5A,2}
+
+};
+
+const notes_t tune_sms[] PROGMEM = {
+  {NOTE_5A,1},
+  {NOTE_5A,1},
+  {NOTE_5A,1},
+  {NOTE_5A,3},
+  {NOTE_5A,3},
+  {NOTE_5A,1},
+  {NOTE_5A,1},
+  {NOTE_5A,1}
+};
+
+
+const notes_t tune_test[] PROGMEM = {
+  {1,1},
+  {2,1},
+  {3,2},
+  {4,2},{5,2},{6,2},{7,2},{8,2},{9,2}
+};
+
+const notes_t tune_happybirthday[] PROGMEM = {
+	{NOTE_5G,1},
+	{NOTE_5G,1},
+	{NOTE_5A,1},
+	{NOTE_5G,1},
+	{NOTE_6C,1},
+	{NOTE_5B,4},
+
+	{NOTE_5G,1},
+	{NOTE_5G,1},
+	{NOTE_5A,1},
+	{NOTE_5G,1},
+	{NOTE_6D,1},
+	{NOTE_6C,4},
+
+	{NOTE_5G,1},
+	{NOTE_5G,1},
+	{NOTE_6G,1},
+	{NOTE_6E,1},
+	{NOTE_6C,1},
+	{NOTE_5B,1},
+	{NOTE_5A,1},
+
+	{NOTE_6F,1},
+	{NOTE_6F,1},
+	{NOTE_6E,1},
+	{NOTE_6C,1},
+	{NOTE_6D,1},
+	{NOTE_6C,1}
+	
+};
 
 
 
@@ -65,15 +147,58 @@ options are 1, 8, 64,
 divide by 8, and its 71.6
 
 */
-
-
-
 void _mydelay(uint8_t _delay) {
 	for (uint8_t i=0;i < _delay;i++ ){ 
 		_delay_ms(80);
 	}
 
 }
+
+/*******************************************************************************************************************************
+ *  Random Number Generator that probably doesn't work cunt
+ *******************************************************************************************************************************/
+
+/***************************************************
+ * Random Number Generator 
+ ***************************************************
+ * 
+ */
+
+static uint16_t random_number = 0;
+static uint16_t lfsr16_next(uint16_t n) {
+    return (n >> 0x01U) ^ (-(n & 0x01U) & 0xB400U);    
+}
+
+void random_init(void) {		// fuck the seed?
+	pinMode(PIN_RANDOM, INPUT);
+	uint8_t Rand1 = analogRead((analog_pin_t) PIN_RANDOM);
+	uint8_t Rand2 = analogRead((analog_pin_t) PIN_RANDOM);
+	//random_number = Rand1 + (Rand1<<8);
+	random_number = Rand1 + (Rand2<<8);
+}
+
+uint16_t _random( uint16_t _min, uint16_t _max) {
+	uint16_t _return=0;
+guessagain:;
+	//remainder = dividend % divisor;
+	uint16_t _modulus = (_max - _min);
+	_return =   lfsr16_next(random_number);
+	_return =   _return % _modulus;
+	_return += _min;
+
+	if (_return < _min) {
+		//led_blink(LED_RED,4);
+		goto guessagain;
+	}
+	if (_return > _max){
+		//led_blink(LED_RED,8);
+		goto guessagain;
+	}
+	return _return;
+}
+
+
+
 
 /*******************************************************************************************************************************
  *  LED Functions
@@ -302,76 +427,6 @@ void playtune_scale(void) {
 
 
 
-/*******************************************************************************************************************************
- *  Random Number Generator that probably doesn't work cunt
- *******************************************************************************************************************************/
-long countSleep=0;
-long countSleepLimit=0;
-#define PIN_RANDOM PB3
-
-/***************************************************
- * Random Number Generator 
- ***************************************************
- * 
- */
-
-static uint16_t random_number = 0;
-static uint16_t lfsr16_next(uint16_t n) {
-    return (n >> 0x01U) ^ (-(n & 0x01U) & 0xB400U);    
-}
-
-void random_init(void) {		// fuck the seed?
-	pinMode(PIN_RANDOM, INPUT);
-	uint8_t Rand1 = analogRead((analog_pin_t) PIN_RANDOM);
-	uint8_t Rand2 = analogRead((analog_pin_t) PIN_RANDOM);
-	//random_number = Rand1 + (Rand1<<8);
-	random_number = Rand1 + (Rand2<<8);
-}
-
-uint16_t _random( uint16_t _min, uint16_t _max) {
-	uint16_t _return=0;
-guessagain:
-	//remainder = dividend % divisor;
-	uint16_t _modulus = (_max - _min);
-	_return =   lfsr16_next(random_number);
-	_return =   _return % _modulus;
-	_return += _min;
-
-	if (_return < _min) {
-		//led_blink(LED_RED,4);
-		goto guessagain;
-	}
-	if (_return > _max){
-		//led_blink(LED_RED,8);
-		goto guessagain;
-	}
-	return _return;
-}
-
-
-uint16_t _random_NEW( uint16_t _min, uint16_t _max) {
-	pinMode(PIN_RANDOM, INPUT);
-	uint8_t Rand1 = analogRead((analog_pin_t) PIN_RANDOM);
-	uint8_t Rand2 = analogRead((analog_pin_t) PIN_RANDOM);
-	uint16_t _return =  Rand1 + (Rand2<<8);
-
-guessagain:
-	//remainder = dividend % divisor;
-	uint16_t _modulus = (_max - _min);
-	_return =   lfsr16_next(random_number);
-	_return =   _return % _modulus;
-	_return += _min;
-
-	if (_return < _min) {
-		led_blink(LED_RED,4);
-		goto guessagain;
-	}
-	if (_return > _max){
-		led_blink(LED_RED,8);
-		goto guessagain;
-	}
-	return _return;
-}
 
 
 
@@ -524,7 +579,7 @@ void setup() {
 	  
 	_playtones();
 
-
+	//_mydelay_new() ;
 }
 
 

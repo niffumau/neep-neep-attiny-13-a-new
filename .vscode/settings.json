@@ -1,5 +1,11 @@
 {
     "files.associations": {
-        "sleepfunction.h": "c"
+        "sleepfunction.h": "c",
+        "arduino.h": "c",
+        "interrupt.h": "c",
+        "pgmspace.h": "c",
+        "functions.h": "c",
+        "io.h": "c",
+        "delay.h": "c"
     }
 }
