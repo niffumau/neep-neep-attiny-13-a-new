@@ -101,9 +101,7 @@ uint16_t RANDOM_SLEEP_MAX = 8;		// 2 is very regular, was 30.. 4 seemed .. ok bu
 #define NOTE_1AS	
 #define NOTE_1B		
 
-#define NOTE_2C   24		
-
-#define NOTE_2C		
+#define NOTE_2C		24	
 #define NOTE_2CS	
 #define NOTE_2D		
 #define NOTE_2DS	
@@ -327,55 +325,6 @@ const notes_t tune_happybirthday[] PROGMEM = {
 	{NOTE_6C,1}
 	
 };
-
-
-
-//uint8_t * tune_ptr = (uint8_t) tune_happybirthday;
-
-
-
-/*
-#define NOTE_2A		-24
-#define NOTE_3A		-12
-
-#define NOTE_4A		0
-#define NOTE_4AS	1
-#define NOTE_4B		2
-
-#define NOTE_5C		3
-#define NOTE_5CS	4
-#define NOTE_5D		5
-#define NOTE_5DS	6
-#define NOTE_5E		7
-#define NOTE_5F		8
-#define NOTE_5FS	9
-#define NOTE_5G		10
-#define NOTE_5GS	11
-#define NOTE_5A		12
-#define NOTE_5AS	13
-#define NOTE_5B		14
-
-
-
-#define NOTE_5A		12
-#define NOTE_5AS	13
-#define NOTE_5B		14
-
-#define NOTE_6C		15
-#define NOTE_6CS	16
-#define NOTE_6D		17
-#define NOTE_6DS	18
-#define NOTE_6E		19
-#define NOTE_6F		20
-#define NOTE_6FS	21
-#define NOTE_6G		22
-#define NOTE_6GS	23
-#define NOTE_6A		24
-#define NOTE_6AS	25
-#define NOTE_6B		26
-
-*/
-
 
 
 ///// rubbish here

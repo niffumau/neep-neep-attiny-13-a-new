@@ -68,11 +68,6 @@ divide by 8, and its 71.6
 
 
 
-
-// divisor
-
-
-
 void _mydelay(uint8_t _delay) {
 	for (uint8_t i=0;i < _delay;i++ ){ 
 		_delay_ms(80);
@@ -165,6 +160,8 @@ void check_random(uint16_t _return) {
 		led_status(4,4);
 	}
 }
+
+
 /*******************************************************************************************************************************
  *  Tone Functions
  *******************************************************************************************************************************/
@@ -217,39 +214,10 @@ static void _setuptone(void){
 }
 #endif
 
-/***************************************************
- *  Stop tones
- ***************************************************
- * 
- */
-#ifndef IS_BUZZER	
 
-static void stop(void)
-{
 
-	TCCR0B &= ~((1<<CS02)|(1<<CS01)|(1<<CS00)); // stop the timer.... This should absoloutly stop the timer
-	
-	// TCCR1 = 0x90;              // stop the counter		// dont' think this works...
-  
-  	// maybe this is a better stop the couter thing..
-
-	//pinMode(BUZZER_PIN, OUTPUT);
-
-//	TCCR0A |= _BV(COM0B0);	//////////maybe this ??? NOPE, not just that
-//	TCCR0A |= ~((1<<COM0B0)|(1<<COM0B1));	// maybe both of these?  NOPE
-
-  	TCCR0A = 0; // stop the counter    // fuck knows why... fuck knos why the other one dind't work				////////////////disable this if it stops working
-
-	digitalWrite(BUZZER_PIN, LOW); // set the output to low
-}
-
-#endif
 
 #ifndef IS_BUZZER		
-
-
-
-
 /***************************************************
  *  play_note
  ***************************************************
@@ -260,51 +228,26 @@ static void stop(void)
 void play_note(uint8_t _note, uint8_t _duration) {
 	uint8_t _prescaler;
 	uint8_t divisor;
-
-	//_note = 84;
-
-	//led_status(1,_note);
-	//led_status(2,_duration);
-	//return;
-	//led_status(i+1,duration)
-	//uint8_t semitone;
-	//uint8_t octave;
-
-	// check to see if shits fucked
-	//if ((_note < 0) || (_note > 0) ) led_status(4,2);
 	
+	/*
 	if (_note < 0)  {
 		led_status(4,2);
 	}
 	if (_note > 83)  {
 		led_status(4,3);
-	}
+	}*/
 
 	if (_note <  24) {		// Work out the prescaler
 		_prescaler = N_256;
 		divisor = divisors[_note];
-		//octave = _note/12;
-		//semitone = _note - 12*octave;
-		//led_status(octave,semitone);
-
 	} else if (_note < 60 ) {
 		_prescaler = N_64;
 		divisor = divisors[_note-24];
-		//led_status(1,_note-24);
-		//octave = _note/12-24;
-		//semitone = _note - 12*octave;
-		//led_status(octave,semitone);
 	} else {
 		_prescaler = N_8;
 		divisor = divisors[_note-60];
-		//led_status(1,_note-60);
-		//octave = _note/12-60;
-		//semitone = _note - 12*octave;
-		//led_status(octave,semitone);
+
 	}
-	
-	//return;
-	//divisor = 
 
 	TCCR0B = (TCCR0B & ~((1<<CS02)|(1<<CS01)|(1<<CS00))) | _prescaler;
 
@@ -363,11 +306,6 @@ void playtune_scale(void) {
 
 
 
-
-
-
-
-
 /*******************************************************************************************************************************
  *  Random Number Generator that probably doesn't work cunt
  *******************************************************************************************************************************/
@@ -388,9 +326,10 @@ static uint16_t lfsr16_next(uint16_t n) {
 
 void random_init(void) {		// fuck the seed?
 	pinMode(PB3, INPUT);
-	uint8_t Rand1 = analogRead(PB3);
-	uint8_t Rand2 = analogRead(PB3);
-	random_number = Rand1 + (Rand1<<8);
+	uint8_t Rand1 = analogRead((analog_pin_t) PB3);
+	uint8_t Rand2 = analogRead((analog_pin_t) PB3);
+	//random_number = Rand1 + (Rand1<<8);
+	random_number = Rand1 + (Rand2<<8);
 }
 
 uint16_t _random( uint16_t _min, uint16_t _max) {
@@ -401,7 +340,6 @@ guessagain:
 	_return =   lfsr16_next(random_number);
 	_return =   _return % _modulus;
 	_return += _min;
-
 
 	if (_return < _min) {
 		led_blink(LED_RED,4);
@@ -414,34 +352,12 @@ guessagain:
 	return _return;
 }
 
-/*******************************************************************************************************************************
- *  Random number generator based I think on fuck.. i forget
- *******************************************************************************************************************************/
-uint16_t _randomsystem( uint16_t _min, uint16_t _max) {
-	uint16_t _modulus = (_max - _min);
-	uint16_t _number = 0;
-	
-	_number = rand();					// I assume this makes it postiive??
 
-	//_number = AnalogRead(PB0);
-
-	if (_number < 0) {		// lets call this out as an error
-		led_blink(LED_RED,4);
-		led_blink(LED_RED,4);
-		_number = 0 - _number;	// make it positive
-	}
-	_number =   _number % _modulus;			// we only want the remainder
-	_number += _min;						// we add the minimum number to it
-
-	//check_random(_number);					// we check its within the limit
-	return _number;
-}
 
 
 
 //EMPTY_INTERRUPT(ADC_vect)		//Discard adc interrupt	// i'm not sure what this is for?
 ISR(WDT_vect) {}				// without this it reboots
-
 
 
 
@@ -456,7 +372,6 @@ void updateWatchDog(uint8_t c) {
 
     if (c == (SLEEP_016MS)) WDTCR &= SLEEP_016MS;//~(1<<WDP3)|~(1<<WDP2)|~(1<<WDP1)|~(1<<WDP0);
 	else WDTCR |= c;    // Set watchdog timer
-		
 
 /*
 	WDTCR |= (1<<WDP3 )|(0<<WDP2 )|(0<<WDP1)|(1<<WDP0); // 8s
@@ -554,16 +469,16 @@ void _playtones(void){
 	
 	// pick one tune
 
-	//if (_random( 0, 1) == 0 ) playtune_melody(tune_nokia,sizeof(tune_nokia)/2);
+	if (_random( 0, 1) == 0 ) playtune_melody(tune_nokia,sizeof(tune_nokia)/2);
 
-	//else playtune_melody(tune_happybirthday,sizeof(tune_happybirthday)/2);
+	else playtune_melody(tune_happybirthday,sizeof(tune_happybirthday)/2);
 
-	playtune_melody(tune_nokia,sizeof(tune_nokia)/2);
+	//playtune_melody(tune_nokia,sizeof(tune_nokia)/2);
+	//playtune_melody(tune_happybirthday,sizeof(tune_happybirthday)/2);
+
+
 	
-
-
-	
-	stop();
+	//stop();
 #endif
 	//led_off(LED_RED);
 }
