@@ -225,6 +225,8 @@ static void _setuptone(void){
  *   I'll start by trying to work out what the frequency of the note is
  *   https://pages.mtu.edu/~suits/NoteFreqCalcs.html
  */
+	// 9.6MHz internal oscilator... lol, no, i think this is 1.2MHz for the ATTiny13a
+
 void play_note(uint8_t _note, uint8_t _duration) {
 	uint8_t _prescaler;
 	uint8_t divisor;
@@ -270,13 +272,10 @@ void play_note(uint8_t _note, uint8_t _duration) {
  *   
  */
 
-void playtune_melody(notes_t *melody,uint8_t _size) {
-
+void playtune_melody(const notes_t *melody,uint8_t _size) {
 	for	(int i=0; i <_size; i++) {
-		play_note(pgm_read_byte(&melody[i].note),pgm_read_byte(&melody[i].duration));
-		
+		play_note(pgm_read_byte(&melody[i].note),pgm_read_byte(&melody[i].duration));	
 	}
-
 }
 
 
@@ -298,9 +297,6 @@ void playtune_scale(void) {
 	}
 }
 
-
-
-
 #endif
 
 
@@ -311,7 +307,7 @@ void playtune_scale(void) {
  *******************************************************************************************************************************/
 long countSleep=0;
 long countSleepLimit=0;
-
+#define PIN_RANDOM PB3
 
 /***************************************************
  * Random Number Generator 
@@ -325,15 +321,40 @@ static uint16_t lfsr16_next(uint16_t n) {
 }
 
 void random_init(void) {		// fuck the seed?
-	pinMode(PB3, INPUT);
-	uint8_t Rand1 = analogRead((analog_pin_t) PB3);
-	uint8_t Rand2 = analogRead((analog_pin_t) PB3);
+	pinMode(PIN_RANDOM, INPUT);
+	uint8_t Rand1 = analogRead((analog_pin_t) PIN_RANDOM);
+	uint8_t Rand2 = analogRead((analog_pin_t) PIN_RANDOM);
 	//random_number = Rand1 + (Rand1<<8);
 	random_number = Rand1 + (Rand2<<8);
 }
 
 uint16_t _random( uint16_t _min, uint16_t _max) {
 	uint16_t _return=0;
+guessagain:
+	//remainder = dividend % divisor;
+	uint16_t _modulus = (_max - _min);
+	_return =   lfsr16_next(random_number);
+	_return =   _return % _modulus;
+	_return += _min;
+
+	if (_return < _min) {
+		//led_blink(LED_RED,4);
+		goto guessagain;
+	}
+	if (_return > _max){
+		//led_blink(LED_RED,8);
+		goto guessagain;
+	}
+	return _return;
+}
+
+
+uint16_t _random_NEW( uint16_t _min, uint16_t _max) {
+	pinMode(PIN_RANDOM, INPUT);
+	uint8_t Rand1 = analogRead((analog_pin_t) PIN_RANDOM);
+	uint8_t Rand2 = analogRead((analog_pin_t) PIN_RANDOM);
+	uint16_t _return =  Rand1 + (Rand2<<8);
+
 guessagain:
 	//remainder = dividend % divisor;
 	uint16_t _modulus = (_max - _min);
@@ -351,7 +372,6 @@ guessagain:
 	}
 	return _return;
 }
-
 
 
 
@@ -462,19 +482,20 @@ void _playtones(void){
 
 #else						// Otherwise we are using PWM
 
-	// 9.6MHz internal oscilator... lol, no, i think this is 1.2MHz for the ATTiny13a
+
 	
 	_setuptone();			// Set up the attiny to play tones
 
 	
 	// pick one tune
+	uint16_t decision = _random( 0, 255);
 
-	if (_random( 0, 1) == 0 ) playtune_melody(tune_nokia,sizeof(tune_nokia)/2);
 
-	else playtune_melody(tune_happybirthday,sizeof(tune_happybirthday)/2);
+	if (decision < 64 ) playtune_melody(tune_nokia,sizeof(tune_nokia)/2);
+	else if (decision < 128) playtune_melody(tune_happybirthday,sizeof(tune_happybirthday)/2);
+	else playtune_melody(tune_happybirthday,sizeof(tune_sms)/2);
 
-	//playtune_melody(tune_nokia,sizeof(tune_nokia)/2);
-	//playtune_melody(tune_happybirthday,sizeof(tune_happybirthday)/2);
+
 
 
 	

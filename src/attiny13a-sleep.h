@@ -268,7 +268,7 @@ notes_t tune_test[25]= {
 
 
 
-const notes_t tune_nokia[13] PROGMEM = {
+const notes_t tune_nokia[] PROGMEM = {
   {NOTE_6E,1},
   {NOTE_6D,1},
   {NOTE_5FS,2},
@@ -286,6 +286,18 @@ const notes_t tune_nokia[13] PROGMEM = {
   {NOTE_5A,2}
 
 };
+
+const notes_t tune_sms[] PROGMEM = {
+  {NOTE_5A,1},
+  {NOTE_5A,1},
+  {NOTE_5A,1},
+  {NOTE_5A,3},
+  {NOTE_5A,3},
+  {NOTE_5A,1},
+  {NOTE_5A,1},
+  {NOTE_5A,1}
+};
+
 
 const notes_t tune_test[] PROGMEM = {
   {1,1},
