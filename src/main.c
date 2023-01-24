@@ -35,7 +35,7 @@
 #include "functions-sleep.h"
 #include "functions-led.h"
 #include "functions.h"
-
+#include "tunes.h"
 
 int REGULAR_HI_MS = 100;        // was 800
 int WAKE_INDICATOR_HI_MS = 0; //200;
@@ -433,8 +433,11 @@ void _playtones(void){
 	uint16_t decision = _random( 0, 7);
 	led_status(3,decision);	// check random numbers
 
-	if (decision < 2 ) playtune_melody(tune_happybirthday,sizeof(tune_happybirthday)/2);
-	else if (decision < 5) playtune_melody(tune_nokia,sizeof(tune_nokia)/2);
+	//uint8_t  thesize = sizeof(tune_iphone2)/sizeof(tune_iphone2[0]);
+
+	//if (decision < 2 ) playtune_melody(tune_happybirthday,sizeof(tune_happybirthday)/2);
+	if (decision < 4 ) playtune_melody(tune_nokia,sizeof(tune_nokia)/2);
+	//else if (decision < 5) playtune_melody(tune_nokia,sizeof(tune_nokia)/2);
 	else playtune_melody(tune_sms,sizeof(tune_sms)/2);
 
 	

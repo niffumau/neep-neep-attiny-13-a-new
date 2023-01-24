@@ -6,6 +6,7 @@
         "pgmspace.h": "c",
         "functions.h": "c",
         "io.h": "c",
-        "delay.h": "c"
+        "delay.h": "c",
+        "functions-sleep.h": "c"
     }
 }
