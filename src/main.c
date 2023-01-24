@@ -122,6 +122,13 @@ const notes_t tune_test[] PROGMEM = {
   {4,2},{5,2},{6,2},{7,2},{8,2},{9,2}
 };
 
+// C A# G C 
+// F C A# C F 
+// G G A# C C A# G C F C A# C F 
+// G G A# C C A# G C F C A# C F 
+// G G A# C C A# G C F C A# C F
+
+
 /* We then just need a table of divisors for the notes within one octave. To calculate the divisor for a given note frequency we first work out:
 
 divisor = clock / frequency

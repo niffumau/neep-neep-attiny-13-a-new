@@ -10,13 +10,12 @@ typedef struct s_notes {
 } notes_t;
 */
 
-/*
+
 typedef struct s_tune {
     uint8_t size;
-    notes_t[];
-};*/
+    notes_t notes[];
+} tune_t;
 
-//extern const notes_t tune_nokia[];
-extern const notes_t tune_iphone2[];
+//extern const notes_t tune_new[];
 
 #endif
