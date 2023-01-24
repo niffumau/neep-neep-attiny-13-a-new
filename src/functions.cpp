@@ -15,7 +15,7 @@
 
 
 #include "main.h"
-//#include "functions.h"
+#include "functions.h"
 #include "functions-led.h"
 #include "functions-sleep.h"
 
