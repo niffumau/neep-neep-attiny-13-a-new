@@ -35,7 +35,7 @@
 #include "functions-sleep.h"
 #include "functions-led.h"
 #include "functions.h"
-#include "tunes.h"
+//#include "tunes.h"
 
 int REGULAR_HI_MS = 100;        // was 800
 int WAKE_INDICATOR_HI_MS = 0; //200;
@@ -51,68 +51,30 @@ const uint8_t divisors[] = {142,134,127,120,113,106,100,95,89,84,79,75,71,67,63,
 
 
 const notes_t tune_nokia[] PROGMEM = {
-  {NOTE_6E,1},
-  {NOTE_6D,1},
-  {NOTE_5FS,2},
-  {NOTE_5GS,1},
-
-  {NOTE_6CS,1},
-  {NOTE_5B,1},
-  {NOTE_5D,2},
-  {NOTE_5E,1},
-
-  {NOTE_5B,1},
-  {NOTE_5A,1},
-  {NOTE_5CS,2},
-  {NOTE_5E,2},
-  {NOTE_5A,2}
-
+  {NOTE_6E,1}, {NOTE_6D,1}, {NOTE_5FS,2}, {NOTE_5GS,1},
+  {NOTE_6CS,1}, {NOTE_5B,1}, {NOTE_5D,2}, {NOTE_5E,1},
+  {NOTE_5B,1}, {NOTE_5A,1}, {NOTE_5CS,2}, {NOTE_5E,2}, {NOTE_5A,2}
 };
 
 const notes_t tune_sms[] PROGMEM = {
-  {NOTE_5A,1},
-  {NOTE_5A,1},
-  {NOTE_5A,1},
-  {NOTE_5A,3},
-  {NOTE_5A,3},
-  {NOTE_5A,1},
-  {NOTE_5A,1},
-  {NOTE_5A,1}
+  {NOTE_5A,1}, {NOTE_5A,1}, {NOTE_5A,1},
+  {NOTE_5A,3}, {NOTE_5A,3}, 
+  {NOTE_5A,1}, {NOTE_5A,1}, {NOTE_5A,1}
+};
+
+const notes_t tune_iphone[] PROGMEM = {
+	{NOTE_4C,1}, {NOTE_4AS,1}, {NOTE_4G,1}, {NOTE_4C,1}, 
+	{NOTE_4F,1}, {NOTE_4C,1}, {NOTE_4AS,1}, {NOTE_4C,1}, {NOTE_4F,1}, 
+	{NOTE_4G,1}, {NOTE_4G,1}, {NOTE_4AS,1}, {NOTE_4C,1}, {NOTE_4C,1}, {NOTE_4AS,1}, {NOTE_4G,1}, {NOTE_4C,1}, {NOTE_4F,1}, {NOTE_4C,1}, {NOTE_4AS,1}, {NOTE_4C,1}, {NOTE_4F,1}, 
+	//{NOTE_4G,1}, {NOTE_4G,1}, {NOTE_4AS,1}, {NOTE_4C,1}, {NOTE_4C,1}, {NOTE_4AS,1}, {NOTE_4G,1}, {NOTE_4C,1}, {NOTE_4F,1}, {NOTE_4C,1}, {NOTE_4AS,1}, {NOTE_4C,1}, {NOTE_4F,1}, 
+	//{NOTE_4G,1}, {NOTE_4G,1}, {NOTE_4AS,1}, {NOTE_4C,1}, {NOTE_4C,1}, {NOTE_4AS,1}, {NOTE_4G,1}, {NOTE_4C,1}, {NOTE_4F,1}, {NOTE_4C,1}, {NOTE_4AS,1}, {NOTE_4C,1}, {NOTE_4F,1}
 };
 
 
-
-
 const notes_t tune_happybirthday[] PROGMEM = {
-	{NOTE_5G,1},
-	{NOTE_5G,1},
-	{NOTE_5A,1},
-	{NOTE_5G,1},
-	{NOTE_6C,1},
-	{NOTE_5B,4},
-
-	{NOTE_5G,1},
-	{NOTE_5G,1},
-	{NOTE_5A,1},
-	{NOTE_5G,1},
-	{NOTE_6D,1},
-	{NOTE_6C,4},
-
-	{NOTE_5G,1},
-	{NOTE_5G,1},
-	{NOTE_6G,1},
-	{NOTE_6E,1},
-	{NOTE_6C,1},
-	{NOTE_5B,1},
-	{NOTE_5A,1},
-
-	{NOTE_6F,1},
-	{NOTE_6F,1},
-	{NOTE_6E,1},
-	{NOTE_6C,1},
-	{NOTE_6D,1},
-	{NOTE_6C,1}
-	
+	{NOTE_5G,1},{NOTE_5G,1},{NOTE_5A,1},{NOTE_5G,1},{NOTE_6C,1},{NOTE_5B,4},
+	{NOTE_5G,1},{NOTE_5G,1},{NOTE_5A,1},{NOTE_5G,1},{NOTE_6D,1},{NOTE_6C,4},{NOTE_5G,1},{NOTE_5G,1},{NOTE_6G,1},{NOTE_6E,1},{NOTE_6C,1},{NOTE_5B,1},{NOTE_5A,1},
+	{NOTE_6F,1},{NOTE_6F,1},{NOTE_6E,1},{NOTE_6C,1},{NOTE_6D,1},{NOTE_6C,1}
 };
 
 const notes_t tune_test[] PROGMEM = {
@@ -122,11 +84,7 @@ const notes_t tune_test[] PROGMEM = {
   {4,2},{5,2},{6,2},{7,2},{8,2},{9,2}
 };
 
-// C A# G C 
-// F C A# C F 
-// G G A# C C A# G C F C A# C F 
-// G G A# C C A# G C F C A# C F 
-// G G A# C C A# G C F C A# C F
+
 
 
 /* We then just need a table of divisors for the notes within one octave. To calculate the divisor for a given note frequency we first work out:
@@ -430,23 +388,15 @@ void _playtones(void){
 	}
 
 #else						// Otherwise we are using PWM
-
-
-	
 	_setuptone();			// Set up the attiny to play tones
 
-	
-	// pick one tune
-	uint16_t decision = _random( 0, 7);
+	uint16_t decision = _random( 0, 7);		// pick one tune
 	led_status(3,decision);	// check random numbers
 
-	//uint8_t  thesize = sizeof(tune_iphone2)/sizeof(tune_iphone2[0]);
-
-	//if (decision < 2 ) playtune_melody(tune_happybirthday,sizeof(tune_happybirthday)/2);
-	if (decision < 4 ) playtune_melody(tune_nokia,sizeof(tune_nokia)/2);
-	//else if (decision < 5) playtune_melody(tune_nokia,sizeof(tune_nokia)/2);
+	if (decision < 2 ) playtune_melody(tune_nokia,sizeof(tune_nokia)/2);
+	//else if (decision < 5) playtune_melody(tune_happybirthday,sizeof(tune_happybirthday)/2);
+	else if (decision < 5) playtune_melody(tune_iphone,sizeof(tune_iphone)/2);
 	else playtune_melody(tune_sms,sizeof(tune_sms)/2);
-
 	
 #endif
 
