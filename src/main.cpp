@@ -20,8 +20,8 @@
 
 #include <avr/interrupt.h>
 
-#include <avr/power.h>
-#include <avr/sleep.h>
+//#include <avr/power.h>
+//#include <avr/sleep.h>
 
 //#include <math.h>		// fuck me this can use up a lot of flash
 //#include <avr/wdt.h>
@@ -35,11 +35,11 @@
 #include "functions-sleep.h"
 #include "functions-led.h"
 #include "functions.h"
-//#include "tunes.h"
+#include "tunes.h"
 
-int REGULAR_HI_MS = 100;        // was 800
-int WAKE_INDICATOR_HI_MS = 0; //200;
-int INITIAL_BEEP_COUNT = 3;   // number of "test" beeps before we go into the real loop
+//int REGULAR_HI_MS = 100;        // was 800
+//int WAKE_INDICATOR_HI_MS = 0; //200;
+//int INITIAL_BEEP_COUNT = 3;   // number of "test" beeps before we go into the real loop
 
 
 long countSleep=0;
@@ -47,7 +47,7 @@ long countSleepLimit=0;
 
 
 
-const uint8_t divisors[] = {142,134,127,120,113,106,100,95,89,84,79,75,71,67,63,59,56,53,50,47,44,42,39,37,35,33,31,29,27,26,24,23,22,20,19,18};
+
 
 
 const notes_t tune_nokia[] PROGMEM = {
@@ -63,27 +63,15 @@ const notes_t tune_sms[] PROGMEM = {
 };
 
 const notes_t tune_iphone[] PROGMEM = {
+	{NOTE_4G,4}, {NOTE_4G,2}, {NOTE_4AS,2}, {NOTE_5C,2},
+	{NOTE_5C,1}, {NOTE_4AS,1}, {NOTE_4G,2}, 
+	{NOTE_5C,2}, {NOTE_4G,2}, 
+	{NOTE_5C,2}, {NOTE_4A,2}, {NOTE_5C,2}, {NOTE_4F,8},
 	
 	{NOTE_4G,4}, {NOTE_4G,2}, {NOTE_4AS,2}, {NOTE_5C,2},
 	{NOTE_5C,1}, {NOTE_4AS,1}, {NOTE_4G,2}, 
 	{NOTE_5C,2}, {NOTE_4G,2}, 
 	{NOTE_5C,2}, {NOTE_4A,2}, {NOTE_5C,2}, {NOTE_4F,8},
-
-	
-	{NOTE_4G,4}, {NOTE_4G,2}, {NOTE_4AS,2}, {NOTE_5C,2},
-	{NOTE_5C,1}, {NOTE_4AS,1}, {NOTE_4G,2}, 
-	{NOTE_5C,2}, {NOTE_4G,2}, 
-	{NOTE_5C,2}, {NOTE_4A,2}, {NOTE_5C,2}, {NOTE_4F,8},
-
-	//  {NOTE_4G,8}, {NOTE_4G,4}, {NOTE_4AS,4}, {NOTE_5C,2}, {NOTE_5C,2},  {NOTE_4AS,4}, {NOTE_4G,4}, {NOTE_4C,4}, {NOTE_4F,4}, {NOTE_5C,4}, {NOTE_4AS,4}, {NOTE_5C,4}, {NOTE_4F,4}
-
-//	{NOTE_5C,2}, {NOTE_4AS,2}, 
-//	{NOTE_4G,4}, {NOTE_5C,4}, 
-//	{NOTE_4F,4}, {NOTE_5C,4}, {NOTE_4AS,4}, 
-	//{NOTE_4C,1}, {NOTE_4F,1}, 
-	//{NOTE_4G,1}, {NOTE_4G,1}, {NOTE_4AS,1}, {NOTE_4C,1}, {NOTE_4C,1}, {NOTE_4AS,1}, {NOTE_4G,1}, {NOTE_4C,1}, {NOTE_4F,1}, {NOTE_4C,1}, {NOTE_4AS,1}, {NOTE_4C,1}, {NOTE_4F,1}, 
-	//{NOTE_4G,1}, {NOTE_4G,1}, {NOTE_4AS,1}, {NOTE_4C,1}, {NOTE_4C,1}, {NOTE_4AS,1}, {NOTE_4G,1}, {NOTE_4C,1}, {NOTE_4F,1}, {NOTE_4C,1}, {NOTE_4AS,1}, {NOTE_4C,1}, {NOTE_4F,1}, 
-	//{NOTE_4G,1}, {NOTE_4G,1}, {NOTE_4AS,1}, {NOTE_4C,1}, {NOTE_4C,1}, {NOTE_4AS,1}, {NOTE_4G,1}, {NOTE_4C,1}, {NOTE_4F,1}, {NOTE_4C,1}, {NOTE_4AS,1}, {NOTE_4C,1}, {NOTE_4F,1}
 };
 
 
@@ -195,7 +183,6 @@ static void _setuptone(void){
 #ifndef IS_BUZZER	
 static void stop(void)
 {
-
 	TCCR0B &= ~((1<<CS02)|(1<<CS01)|(1<<CS00)); // stop the timer.... This should absoloutly stop the timer
   	TCCR0A = 0; // stop the counter    // fuck knows why... fuck knos why the other one dind't work				////////////////disable this if it stops working
 
@@ -206,88 +193,7 @@ static void stop(void)
 
 
 
-#ifndef IS_BUZZER		
-/***************************************************
- *  play_note
- ***************************************************
- *   I am not really sure how this is going to pan out
- *   I'll start by trying to work out what the frequency of the note is
- *   https://pages.mtu.edu/~suits/NoteFreqCalcs.html
- */
-	// 9.6MHz internal oscilator... lol, no, i think this is 1.2MHz for the ATTiny13a
 
-void play_note(uint8_t _note, uint8_t _duration) {
-	uint8_t _prescaler;
-	uint8_t divisor;
-	
-	/*
-	if (_note < 0)  {
-		led_status(4,2);
-	}
-	if (_note > 83)  {
-		led_status(4,3);
-	}*/
-
-	if (_note <  24) {		// Work out the prescaler
-		_prescaler = N_256;
-		divisor = divisors[_note];
-	} else if (_note < 60 ) {
-		_prescaler = N_64;
-		divisor = divisors[_note-24];
-	} else {
-		_prescaler = N_8;
-		divisor = divisors[_note-60];
-
-	}
-
-	TCCR0B = (TCCR0B & ~((1<<CS02)|(1<<CS01)|(1<<CS00))) | _prescaler;
-
-	OCR0A = divisor;		// set count
-	OCR0B = divisor/2;		// set count for duty, so duty = OCR0B/OCR0A
-	TCCR0A |= _BV(COM0B0);
-
-	_mydelay(_duration);
-	TCCR0B &= ~((1<<CS02)|(1<<CS01)|(1<<CS00)); // stop the timer
-	digitalWrite(BUZZER_PIN, LOW); // set the output to low
-	_mydelay(_duration);
-
-}
-
-
-
-/***************************************************
- *  playtune_melody
- ***************************************************
- *  This should play a tune 
- *   
- */
-
-void playtune_melody(const notes_t *melody,uint8_t _size) {
-	for	(int i=0; i <_size; i++) {
-		play_note(pgm_read_byte(&melody[i].note),pgm_read_byte(&melody[i].duration));	
-	}
-}
-
-
-/***************************************************
- *  playtune_scale
- ***************************************************
- *  
- *   
- */
-void playtune_scale(void) {
-
-	for (uint8_t octave=3; octave <= 5; octave++) {
-		led_status(1,octave);
-		for	(uint8_t i=0; i < 12; i++) {
-			uint8_t note = octave*12+i;
-			play_note(note,2);
-		}
-		_mydelay(4);
-	}
-}
-
-#endif
 
 
 
@@ -301,82 +207,6 @@ ISR(WDT_vect) {}				// without this it reboots
 
 
 
-/*******************************************************************************************************************************
- *  NEW SLEEP  NEW SLEEP  NEW SLEEP  NEW SLEEP  NEW SLEEP  NEW SLEEP  NEW SLEEP  NEW SLEEP  NEW SLEEP  NEW SLEEP  NEW SLEEP
- *******************************************************************************************************************************/
-
-#define CUNT (1<<WDP3) | (1<<WDP0)
-
-void updateWatchDog(uint8_t c) {
-    cli(); // No interrupts; timed sequence
-
-    if (c == (SLEEP_016MS)) WDTCR &= SLEEP_016MS;//~(1<<WDP3)|~(1<<WDP2)|~(1<<WDP1)|~(1<<WDP0);
-	else WDTCR |= c;    // Set watchdog timer
-
-/*
-	WDTCR |= (1<<WDP3 )|(0<<WDP2 )|(0<<WDP1)|(1<<WDP0); // 8s
-	is setting the timers configuration and 8s is the max Other values are listed:
-
-	16MS   (0<<WDP3 )|(0<<WDP2 )|(0<<WDP1)|(0<<WDP0)
-	32MS   (0<<WDP3 )|(0<<WDP2 )|(0<<WDP1)|(1<<WDP0)
-	64MS   (0<<WDP3 )|(0<<WDP2 )|(1<<WDP1)|(0<<WDP0)
-	125MS  (0<<WDP3 )|(0<<WDP2 )|(1<<WDP1)|(1<<WDP0)
-	250MS  (0<<WDP3 )|(1<<WDP2 )|(0<<WDP1)|(0<<WDP0)
-	500MS  (0<<WDP3 )|(1<<WDP2 )|(0<<WDP1)|(1<<WDP0)
-	1S     (0<<WDP3 )|(1<<WDP2 )|(1<<WDP1)|(0<<WDP0)
-	2S     (0<<WDP3 )|(1<<WDP2 )|(1<<WDP1)|(1<<WDP0)
-	4S     (1<<WDP3 )|(0<<WDP2 )|(0<<WDP1)|(0<<WDP0)
-	8S     (1<<WDP3 )|(0<<WDP2 )|(0<<WDP1)|(1<<WDP0)
-*/
-
-	//WDTCR |= (1<<WDP3 )|(0<<WDP2 )|(0<<WDP1)|(1<<WDP0); // 8s			hard code it... i think thats wrong
-	//WDTCR |= (1<<WDP3) | (1<<WDP0);
-	//WDTCR |= CUNT;
-//	WDTCR |= SLEEP_8SEC;
-
-
-    WDTCR |= (1 << WDTIE); // Enable watchdog timer interrupts
-
-
-    sei(); // Enable global interrupts or we never wake
-}
-
-
-
-void updateOCR(uint8_t var) {
-  OCR0A = OCR0B = var;
-}
-
-// set system into the sleep state
-// system wakes up when watchdog times out
-void system_sleep(byte b) {   
-	ACSR = ADMUX = ADCSRA = 0;  
-	ACSR |= (1 << ACD);                  // Analog comparator off
-	ADCSRA &= ~(1<<ADEN);                // switch Analog to Digitalconverter OFF
-	PRR |= (1<<PRTIM0) | (1<<PRADC);
-
-	updateWatchDog(SLEEP_8SEC);
-		
-	set_sleep_mode(SLEEP_MODE_PWR_DOWN); // sleep mode is set here
-	power_all_disable();
-	sleep_enable();
-	sleep_bod_disable(); //Disable BOD
-
-	set_sleep_mode(SLEEP_MODE_PWR_DOWN);
-	//sleep_mode();   // go to sleep and wait for interrupt...
-	sleep_cpu();  //Do not use sleep_mode(), contains sleep_enable(), sleep_cpu(),sleep_disable()
-
-
-	sleep_disable();
-	power_all_enable();
-	//updateWatchDog(SLEEP_016MS); // Set watchdog interrupt cycle to lowest for millis()	is this fucking it ?
-
-
-	ACSR &= ~(1 << ACD);   // Analog comparator on
-	ADCSRA |= (1<<ADEN);   // switch Analog to Digitalconverter ON
-	PRR &= ~(1<<PRTIM0) | ~(1<<PRADC);
-  
-}
 
 
 /***************************************************
@@ -403,16 +233,21 @@ void _playtones(void){
 #else						// Otherwise we are using PWM
 	_setuptone();			// Set up the attiny to play tones
 
+	//playtune_melody(tune_test,sizeof(tune_test)/2);
+	//playtune_melody(tune_iphone,sizeof(tune_iphone)/2);
+	//playtune_melody_new(tune_nokia_rep);
+	//playtune_melody_new(tune_iphone);
+
+
 	uint16_t decision = _random( 0, 7);		// pick one tune
 	led_status(3,decision);	// check random numbers
-
-//	playtune_melody(tune_iphone,sizeof(tune_iphone)/2);
 
 	if (decision < 2 ) playtune_melody(tune_nokia,sizeof(tune_nokia)/2);
 	//else if (decision < 5) playtune_melody(tune_happybirthday,sizeof(tune_happybirthday)/2);
 	else if (decision < 5) playtune_melody(tune_iphone,sizeof(tune_iphone)/2);
 	else playtune_melody(tune_sms,sizeof(tune_sms)/2);
-	
+
+
 #endif
 
 }

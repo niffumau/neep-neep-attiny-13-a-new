@@ -63,19 +63,6 @@
 
 
 
-//#ifdef __AVR_ATtiny13__
-  #define SLEEP_FOREVER  128
-  #define SLEEP_016MS    ~(1<<WDP3)|~(1<<WDP2)|~(1<<WDP1)|~(1<<WDP0)
-  #define SLEEP_125MS    (1<<WDP1) | (1<<WDP0)
-  #define SLEEP_250MS    (1<<WDP2)
-  #define SLEEP_500MS    (1<<WDP2) | (1<<WDP0)
-  #define SLEEP_1SEC     (1<<WDP2) | (1<<WDP1)
-  #define SLEEP_2SEC     (1<<WDP2) | (1<<WDP1) | (1<<WDP0)
-  #define SLEEP_4SEC     (1<<WDP3)
-  #define SLEEP_8SEC     (1<<WDP3) | (1<<WDP0)
-//#endif /* ifdef __AVR_ATtiny13__ */
-
-
 // I think those are wrong.. (_BV(CS01)|_BV(CS00))
 
 
@@ -94,44 +81,44 @@ typedef struct s_notes {
 
 //const uint8_t divisors[];
 
-#define NOTE_0C   0
-#define NOTE_0CS	1
-#define NOTE_0D		2
-#define NOTE_0DS	3
-#define NOTE_0E		4
-#define NOTE_0F		5
-#define NOTE_0FS	6
-#define NOTE_0G		7
-#define NOTE_0GS	8
-#define NOTE_0A		9
-#define NOTE_0AS	10
-#define NOTE_0B		11
+#define NOTE_0C		(uint8_t) 0
+#define NOTE_0CS	(uint8_t) 1
+#define NOTE_0D		(uint8_t) 2
+#define NOTE_0DS	(uint8_t) 3
+#define NOTE_0E		(uint8_t) 4
+#define NOTE_0F		(uint8_t) 5
+#define NOTE_0FS	(uint8_t) 6
+#define NOTE_0G		(uint8_t) 7
+#define NOTE_0GS	(uint8_t) 8
+#define NOTE_0A		(uint8_t) 9
+#define NOTE_0AS	(uint8_t) 10
+#define NOTE_0B		(uint8_t) 11
 
-#define NOTE_1C   12		
-#define NOTE_1CS	
-#define NOTE_1D		
-#define NOTE_1DS	
-#define NOTE_1E		
-#define NOTE_1F		
-#define NOTE_1FS	
-#define NOTE_1G		
-#define NOTE_1GS	
-#define NOTE_1A		
-#define NOTE_1AS	
-#define NOTE_1B		
+#define NOTE_1C		(uint8_t) 12		
+#define NOTE_1CS	(uint8_t) 13
+#define NOTE_1D		(uint8_t) 14
+#define NOTE_1DS	(uint8_t) 15
+#define NOTE_1E		(uint8_t) 16
+#define NOTE_1F		(uint8_t) 17
+#define NOTE_1FS	(uint8_t) 18
+#define NOTE_1G		(uint8_t) 19
+#define NOTE_1GS	(uint8_t) 20
+#define NOTE_1A		(uint8_t) 21
+#define NOTE_1AS	(uint8_t) 22
+#define NOTE_1B		(uint8_t) 23
 
-#define NOTE_2C		24	
-#define NOTE_2CS	
-#define NOTE_2D		
-#define NOTE_2DS	
-#define NOTE_2E		
-#define NOTE_2F		
-#define NOTE_2FS	
-#define NOTE_2G		
-#define NOTE_2GS	
-#define NOTE_2A		
-#define NOTE_2AS	
-#define NOTE_2B		
+#define NOTE_2C		(uint8_t) 24	
+#define NOTE_2CS	(uint8_t) 25
+#define NOTE_2D		(uint8_t) 26
+#define NOTE_2DS	(uint8_t) 27
+#define NOTE_2E		(uint8_t) 28
+#define NOTE_2F		(uint8_t) 29
+#define NOTE_2FS	(uint8_t) 30
+#define NOTE_2G		(uint8_t) 31
+#define NOTE_2GS	(uint8_t) 32
+#define NOTE_2A		(uint8_t) 33
+#define NOTE_2AS	(uint8_t) 34
+#define NOTE_2B		(uint8_t) 35
 
 #define NOTE_3C		(uint8_t) 36
 #define NOTE_3CS	(uint8_t) 37
