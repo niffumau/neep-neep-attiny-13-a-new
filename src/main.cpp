@@ -63,9 +63,25 @@ const notes_t tune_sms[] PROGMEM = {
 };
 
 const notes_t tune_iphone[] PROGMEM = {
-	{NOTE_4C,1}, {NOTE_4AS,1}, {NOTE_4G,1}, {NOTE_4C,1}, 
-	{NOTE_4F,1}, {NOTE_4C,1}, {NOTE_4AS,1}, {NOTE_4C,1}, {NOTE_4F,1}, 
-	{NOTE_4G,1}, {NOTE_4G,1}, {NOTE_4AS,1}, {NOTE_4C,1}, {NOTE_4C,1}, {NOTE_4AS,1}, {NOTE_4G,1}, {NOTE_4C,1}, {NOTE_4F,1}, {NOTE_4C,1}, {NOTE_4AS,1}, {NOTE_4C,1}, {NOTE_4F,1}, 
+	
+	{NOTE_4G,4}, {NOTE_4G,2}, {NOTE_4AS,2}, {NOTE_5C,2},
+	{NOTE_5C,1}, {NOTE_4AS,1}, {NOTE_4G,2}, 
+	{NOTE_5C,2}, {NOTE_4G,2}, 
+	{NOTE_5C,2}, {NOTE_4A,2}, {NOTE_5C,2}, {NOTE_4F,8},
+
+	
+	{NOTE_4G,4}, {NOTE_4G,2}, {NOTE_4AS,2}, {NOTE_5C,2},
+	{NOTE_5C,1}, {NOTE_4AS,1}, {NOTE_4G,2}, 
+	{NOTE_5C,2}, {NOTE_4G,2}, 
+	{NOTE_5C,2}, {NOTE_4A,2}, {NOTE_5C,2}, {NOTE_4F,8},
+
+	//  {NOTE_4G,8}, {NOTE_4G,4}, {NOTE_4AS,4}, {NOTE_5C,2}, {NOTE_5C,2},  {NOTE_4AS,4}, {NOTE_4G,4}, {NOTE_4C,4}, {NOTE_4F,4}, {NOTE_5C,4}, {NOTE_4AS,4}, {NOTE_5C,4}, {NOTE_4F,4}
+
+//	{NOTE_5C,2}, {NOTE_4AS,2}, 
+//	{NOTE_4G,4}, {NOTE_5C,4}, 
+//	{NOTE_4F,4}, {NOTE_5C,4}, {NOTE_4AS,4}, 
+	//{NOTE_4C,1}, {NOTE_4F,1}, 
+	//{NOTE_4G,1}, {NOTE_4G,1}, {NOTE_4AS,1}, {NOTE_4C,1}, {NOTE_4C,1}, {NOTE_4AS,1}, {NOTE_4G,1}, {NOTE_4C,1}, {NOTE_4F,1}, {NOTE_4C,1}, {NOTE_4AS,1}, {NOTE_4C,1}, {NOTE_4F,1}, 
 	//{NOTE_4G,1}, {NOTE_4G,1}, {NOTE_4AS,1}, {NOTE_4C,1}, {NOTE_4C,1}, {NOTE_4AS,1}, {NOTE_4G,1}, {NOTE_4C,1}, {NOTE_4F,1}, {NOTE_4C,1}, {NOTE_4AS,1}, {NOTE_4C,1}, {NOTE_4F,1}, 
 	//{NOTE_4G,1}, {NOTE_4G,1}, {NOTE_4AS,1}, {NOTE_4C,1}, {NOTE_4C,1}, {NOTE_4AS,1}, {NOTE_4G,1}, {NOTE_4C,1}, {NOTE_4F,1}, {NOTE_4C,1}, {NOTE_4AS,1}, {NOTE_4C,1}, {NOTE_4F,1}
 };
@@ -104,21 +120,7 @@ too large, divide by 2 again
 too large..
 options are 1, 8, 64,
 divide by 8, and its 71.6
-
 */
-/*
-void _mydelay(uint8_t _delay) {
-	for (uint8_t i=0;i < _delay;i++ ){ 
-		_delay_ms(80);
-	}
-
-}*/
-
-
-
-
-
-
 
 
 
@@ -139,8 +141,6 @@ static void _setuptone(void){
 	// Set Timer Mode to Fast PWM
 	// Below, it looks like they are just setting WGM01 to 1,, the manual seems to say that WGM01 and WGM00 should be 1 ?
 
-//	 // set timer mode to Fast PWM
-	
 
 
 	// fucking really doesn't make sense
@@ -152,17 +152,24 @@ static void _setuptone(void){
 	The OCRB value must be between 0 and OCRA.
 	Because it is the PWM duty. */
 
+/*
 	// Following that
 	TCCR0A |= ((1<<WGM02)|(1<<WGM01)|(1<<WGM00));		// this should really be mode 7
-//	TCCR0A |= (1<<WGM00);	// Waveform generator as PWM, Phase correct
-
-//	TCCR0A |= ((1<<WGM01)|(1<<WGM00)); // set fast PWM mode 7 - page 79 - uses OCR0A for TOP, PWM signal comes out on OCR0B
+	TCCR0A |= ((1<<WGM01)|(1<<WGM00)); // set fast PWM mode 7 - page 79 - uses OCR0A for TOP, PWM signal comes out on OCR0B
 	TCCR0A |= (1<<COM0B1)|(1<<COM0B0); // define inverted
+*/
+	//	TCCR0A |= _BV(COM0B0); // connect PWM pin to Channel A of Timer0... PB1 ?
+	TCCR0A |= ((1<<WGM02)|(1<<WGM01)|(1<<WGM00)|(1<<COM0B1)|(1<<COM0B0)|_BV(COM0B0));	
+
+
 
 	TCCR0B |= (1<<WGM02); // to use TOP as OCR0A rather than 0xFF
-	
 
 
+	// So what we have above is.. pretty simply put...
+
+
+	//TCCR0A |= ((1<<WGM02)|(1<<WGM01)|(1<<WGM00));	// can we combine all the ones above???
 
 
 	// Select which pin connects to Timer 0
@@ -170,7 +177,13 @@ static void _setuptone(void){
 
 	// So the COM0B1 and COM0B0 contyrol what it does... 
 	// both 0 means disconnected
-	TCCR0A |= _BV(COM0B0); // connect PWM pin to Channel A of Timer0... PB1 ?
+
+
+	
+
+
+
+
 }
 #endif
 
@@ -392,6 +405,8 @@ void _playtones(void){
 
 	uint16_t decision = _random( 0, 7);		// pick one tune
 	led_status(3,decision);	// check random numbers
+
+//	playtune_melody(tune_iphone,sizeof(tune_iphone)/2);
 
 	if (decision < 2 ) playtune_melody(tune_nokia,sizeof(tune_nokia)/2);
 	//else if (decision < 5) playtune_melody(tune_happybirthday,sizeof(tune_happybirthday)/2);
