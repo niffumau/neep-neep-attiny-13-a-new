@@ -28,7 +28,7 @@
 
 void _mydelay(uint8_t _delay) {
 	for (uint8_t i=0;i < _delay;i++ ){ 
-		_delay_ms(80);
+		_delay_ms(40);
 	}
 
 }

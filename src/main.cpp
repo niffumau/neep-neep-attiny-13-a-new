@@ -51,15 +51,15 @@ long countSleepLimit=0;
 
 
 const notes_t tune_nokia[] PROGMEM = {
-  {NOTE_6E,1}, {NOTE_6D,1}, {NOTE_5FS,2}, {NOTE_5GS,1},
-  {NOTE_6CS,1}, {NOTE_5B,1}, {NOTE_5D,2}, {NOTE_5E,1},
-  {NOTE_5B,1}, {NOTE_5A,1}, {NOTE_5CS,2}, {NOTE_5E,2}, {NOTE_5A,2}
+  {NOTE_6E,2}, {NOTE_6D,2}, {NOTE_5FS,4}, {NOTE_5GS,2},
+  {NOTE_6CS,2}, {NOTE_5B,2}, {NOTE_5D,4}, {NOTE_5E,2},
+  {NOTE_5B,2}, {NOTE_5A,2}, {NOTE_5CS,4}, {NOTE_5E,4}, {NOTE_5A,4}
 };
 
 const notes_t tune_sms[] PROGMEM = {
-  {NOTE_5A,1}, {NOTE_5A,1}, {NOTE_5A,1},
-  {NOTE_5A,3}, {NOTE_5A,3}, 
-  {NOTE_5A,1}, {NOTE_5A,1}, {NOTE_5A,1}
+  {NOTE_5A,2}, {NOTE_5A,2}, {NOTE_5A,2},
+  {NOTE_5A,6}, {NOTE_5A,6}, 
+  {NOTE_5A,2}, {NOTE_5A,2}, {NOTE_5A,2}
 };
 
 const notes_t tune_iphone[] PROGMEM = {
@@ -87,6 +87,7 @@ const notes_t tune_test[] PROGMEM = {
   {3,2},
   {4,2},{5,2},{6,2},{7,2},{8,2},{9,2}
 };
+
 
 
 
@@ -235,17 +236,25 @@ void _playtones(void){
 
 	//playtune_melody(tune_test,sizeof(tune_test)/2);
 	//playtune_melody(tune_iphone,sizeof(tune_iphone)/2);
-	//playtune_melody_new(tune_nokia_rep);
+//	playtune_melody_new(tune_nokia_rep);
 	//playtune_melody_new(tune_iphone);
+
+	
+
 
 
 	uint16_t decision = _random( 0, 7);		// pick one tune
 	led_status(3,decision);	// check random numbers
 
-	if (decision < 2 ) playtune_melody(tune_nokia,sizeof(tune_nokia)/2);
+/*	if (decision < 2 ) playtune_melody(tune_nokia,sizeof(tune_nokia)/2);
 	//else if (decision < 5) playtune_melody(tune_happybirthday,sizeof(tune_happybirthday)/2);
 	else if (decision < 5) playtune_melody(tune_iphone,sizeof(tune_iphone)/2);
-	else playtune_melody(tune_sms,sizeof(tune_sms)/2);
+	else playtune_melody(tune_sms,sizeof(tune_sms)/2);*/
+
+	if (decision < 2 ) playtune_melody_new(tune_nokia_new);
+	else if (decision < 5) playtune_melody_new(tune_iphone_new);
+	else playtune_melody_new(tune_sms_new);
+
 
 
 #endif
@@ -258,6 +267,16 @@ void _playtones(void){
  *  SETUP  SETUP  SETUP  SETUP  SETUP  SETUP  SETUP  SETUP  SETUP  SETUP  SETUP  SETUP  SETUP  SETUP  SETUP  SETUP  SETUP  SETUP
  *******************************************************************************************************************************/
 
+const uint8_t _checkvariable PROGMEM = 5;
+
+const uint8_t tune_test_rep[] PROGMEM = {
+  (uint8_t) 2,
+  NOTE_6E,1, NOTE_6D,1, NOTE_5FS,2, NOTE_5GS,1,
+  NOTE_6CS,1, NOTE_5B,1, NOTE_5D,2, NOTE_5E,1,
+  NOTE_5B,1, NOTE_5A,1, NOTE_5CS,2, NOTE_5E,2, NOTE_5A,2
+
+};
+
 
 void setup() {
 	// setup random shit
@@ -266,10 +285,15 @@ void setup() {
 	pinMode(BUZZER_PIN, OUTPUT);
 
 	led_setup();
-//	led_blink(LED_RED,2);
-
 	led_status(1,1);
-	  
+
+
+	// check reading a single value
+//	uint8_t _length = pgm_read_byte(&tune_test_rep);
+	//uint8_t _length = pgm_read_byte(&_checkvariable);	// WORKS
+//	led_status(2,_length);  return;   // debug
+
+
 	_playtones();
 	stop();
 

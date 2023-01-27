@@ -19,6 +19,12 @@ typedef struct s_tune {
 //extern const notes_t tune_new[];
 extern const uint8_t tune_nokia_rep[];
 
+
+extern const uint8_t tune_nokia_new[];
+extern const uint8_t tune_sms_new[];
+extern const uint8_t tune_iphone_new[];
+
+
 void play_note(uint8_t _note, uint8_t _duration);
 void playtune_scale(void);
 void playtune_melody(const notes_t *melody,uint8_t _size);

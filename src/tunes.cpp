@@ -12,6 +12,37 @@ const uint8_t divisors[] = {142,134,127,120,113,106,100,95,89,84,79,75,71,67,63,
 
 
 
+
+const uint8_t tune_nokia_new[] PROGMEM = {
+  (uint8_t) 13,
+  NOTE_6E,2, NOTE_6D,2, NOTE_5FS,4, NOTE_5GS,2,
+  NOTE_6CS,2, NOTE_5B,2, NOTE_5D,4, NOTE_5E,2,
+  NOTE_5B,2, NOTE_5A,2, NOTE_5CS,4, NOTE_5E,4, NOTE_5A,4
+};
+
+
+const uint8_t tune_sms_new[] PROGMEM = {
+  (uint8_t) 8,
+  NOTE_5A,2, NOTE_5A,2, NOTE_5A,2,
+  NOTE_5A,6, NOTE_5A,6, 
+  NOTE_5A,2, NOTE_5A,2, NOTE_5A,2
+};
+
+const uint8_t tune_iphone_new[] PROGMEM = {
+  (uint8_t) 26,
+	NOTE_4G,4, NOTE_4G,2, NOTE_4AS,2, NOTE_5C,2,
+	NOTE_5C,1, NOTE_4AS,1, NOTE_4G,2, 
+	NOTE_5C,2, NOTE_4G,2, 
+	NOTE_5C,2, NOTE_4A,2, NOTE_5C,2, NOTE_4F,8,
+
+  NOTE_4G,4, NOTE_4G,2, NOTE_4AS,2, NOTE_5C,2,
+	NOTE_5C,1, NOTE_4AS,1, NOTE_4G,2, 
+	NOTE_5C,2, NOTE_4G,2, 
+	NOTE_5C,2, NOTE_4A,2, NOTE_5C,2, NOTE_4F,8,
+};
+
+
+/////////////// testing stuff //////////////////////////////
 const notes_t tune_newd[] PROGMEM = {
   {NOTE_5A,1},
   {NOTE_5A,1},
@@ -23,25 +54,31 @@ const notes_t tune_newd[] PROGMEM = {
   {NOTE_5A,1}
 };
 
-const tune_t tune_new = {
+const tune_t tune_new PROGMEM = {
   .size = 8,
   .notes = { {NOTE_5A,1}, {NOTE_5A,1}, {NOTE_5A,1}, {NOTE_5A,1},}
 };
 
-const uint8_t tune_nokia_rep[] = {
-  (uint8_t) 2,
+const uint8_t tune_nokia_rep[] PROGMEM = {
+  (uint8_t) 13,
   NOTE_6E,1, NOTE_6D,1, NOTE_5FS,2, NOTE_5GS,1,
   NOTE_6CS,1, NOTE_5B,1, NOTE_5D,2, NOTE_5E,1,
   NOTE_5B,1, NOTE_5A,1, NOTE_5CS,2, NOTE_5E,2, NOTE_5A,2
 
-
 };
+
+
 
 /*
 const tune_t tune_new2 = {
   .size = 8,
   .notes = tune_newd
 };*/
+
+
+////////////////////////////////////////////////////////////////////
+
+
 
 
 #ifndef IS_BUZZER		
@@ -135,10 +172,9 @@ void playtune_melody(const notes_t *melody,uint8_t _size) {
 
 void playtune_melody_new(const uint8_t *melody) {
 	uint8_t _length = pgm_read_byte(&melody[0]);
-	led_status(4,_length);  return;   // debug
-  
+	//led_status(4,_length);  return;   // debug  
 	for	(int i=0; i <_length; i++) {
-		play_note(pgm_read_byte(&melody[2*i+1]),pgm_read_byte(&melody[2*i+2]));	
+		play_note(pgm_read_byte(&melody[1+2*i]),pgm_read_byte(&melody[2+2*i]));	
 	}
 }
 
