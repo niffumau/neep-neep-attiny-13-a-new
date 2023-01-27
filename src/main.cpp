@@ -47,51 +47,6 @@ long countSleepLimit=0;
 
 
 
-
-
-
-const notes_t tune_nokia[] PROGMEM = {
-  {NOTE_6E,2}, {NOTE_6D,2}, {NOTE_5FS,4}, {NOTE_5GS,2},
-  {NOTE_6CS,2}, {NOTE_5B,2}, {NOTE_5D,4}, {NOTE_5E,2},
-  {NOTE_5B,2}, {NOTE_5A,2}, {NOTE_5CS,4}, {NOTE_5E,4}, {NOTE_5A,4}
-};
-
-const notes_t tune_sms[] PROGMEM = {
-  {NOTE_5A,2}, {NOTE_5A,2}, {NOTE_5A,2},
-  {NOTE_5A,6}, {NOTE_5A,6}, 
-  {NOTE_5A,2}, {NOTE_5A,2}, {NOTE_5A,2}
-};
-
-const notes_t tune_iphone[] PROGMEM = {
-	{NOTE_4G,4}, {NOTE_4G,2}, {NOTE_4AS,2}, {NOTE_5C,2},
-	{NOTE_5C,1}, {NOTE_4AS,1}, {NOTE_4G,2}, 
-	{NOTE_5C,2}, {NOTE_4G,2}, 
-	{NOTE_5C,2}, {NOTE_4A,2}, {NOTE_5C,2}, {NOTE_4F,8},
-	
-	{NOTE_4G,4}, {NOTE_4G,2}, {NOTE_4AS,2}, {NOTE_5C,2},
-	{NOTE_5C,1}, {NOTE_4AS,1}, {NOTE_4G,2}, 
-	{NOTE_5C,2}, {NOTE_4G,2}, 
-	{NOTE_5C,2}, {NOTE_4A,2}, {NOTE_5C,2}, {NOTE_4F,8},
-};
-
-
-const notes_t tune_happybirthday[] PROGMEM = {
-	{NOTE_5G,1},{NOTE_5G,1},{NOTE_5A,1},{NOTE_5G,1},{NOTE_6C,1},{NOTE_5B,4},
-	{NOTE_5G,1},{NOTE_5G,1},{NOTE_5A,1},{NOTE_5G,1},{NOTE_6D,1},{NOTE_6C,4},{NOTE_5G,1},{NOTE_5G,1},{NOTE_6G,1},{NOTE_6E,1},{NOTE_6C,1},{NOTE_5B,1},{NOTE_5A,1},
-	{NOTE_6F,1},{NOTE_6F,1},{NOTE_6E,1},{NOTE_6C,1},{NOTE_6D,1},{NOTE_6C,1}
-};
-
-const notes_t tune_test[] PROGMEM = {
-  {1,1},
-  {2,1},
-  {3,2},
-  {4,2},{5,2},{6,2},{7,2},{8,2},{9,2}
-};
-
-
-
-
-
 /* We then just need a table of divisors for the notes within one octave. To calculate the divisor for a given note frequency we first work out:
 
 divisor = clock / frequency
@@ -238,9 +193,6 @@ void _playtones(void){
 	//playtune_melody(tune_iphone,sizeof(tune_iphone)/2);
 //	playtune_melody_new(tune_nokia_rep);
 	//playtune_melody_new(tune_iphone);
-
-	
-
 
 
 	uint16_t decision = _random( 0, 7);		// pick one tune
