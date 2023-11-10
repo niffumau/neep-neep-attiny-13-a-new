@@ -4,7 +4,9 @@
  * https://github.com/pedroliska/ATtiny85/blob/master/watchdog-wake/watchdog-wake.ino
  * 
  * 
- * 
+ * Power Draw:
+ * on my multimeter it appears to draw max of 27.8mA when making noise
+ * maybe 10mA when it wakes up and less than 10mA when asleep.
  *  
  */
 
@@ -207,7 +209,7 @@ void _playtones(void){
 	else if (decision < 5) playtune_melody_new(tune_iphone_new);
 	else playtune_melody_new(tune_sms_new);
 
-
+	stop();
 
 #endif
 
