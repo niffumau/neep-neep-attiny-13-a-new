@@ -146,14 +146,14 @@ static void stop(void)
 
 	digitalWrite(BUZZER_PIN, LOW); // set the output to low
 }
-
+#else	
+static void stop(void)
+{
+	TCCR0B &= ~((1<<CS02)|(1<<CS01)|(1<<CS00)); // stop the timer.... This should absoloutly stop the timer
+  	TCCR0A = 0; // stop the counter    // fuck knows why... fuck knos why the other one dind't work				////////////////disable this if it stops working
+	digitalWrite(BUZZER_PIN, LOW); // set the output to low	
+}
 #endif
-
-
-
-
-
-
 
 
 
