@@ -78,7 +78,7 @@ divide by 8, and its 71.6
  ***************************************************
  * 
  */
-#ifndef IS_BUZZER	
+#if !defined(IS_BUZZER) && !defined(IS_SMOKE_ALARM)
 static void _setuptone(void){
 
 	pinMode(BUZZER_PIN, OUTPUT);
@@ -138,7 +138,7 @@ static void _setuptone(void){
  ***************************************************
  * 
  */
-#ifndef IS_BUZZER	
+#if !defined(IS_BUZZER) && !defined(IS_SMOKE_ALARM)
 static void stop(void)
 {
 	TCCR0B &= ~((1<<CS02)|(1<<CS01)|(1<<CS00)); // stop the timer.... This should absoloutly stop the timer
@@ -175,18 +175,25 @@ ISR(WDT_vect) {}				// without this it reboots
 void _playtones(void){
 //	led_status(4,1);
 
-#ifdef IS_BUZZER	
+#if defined(IS_BUZZER) || defined(IS_SMOKE_ALARM)
 	pinMode(BUZZER_PIN, OUTPUT);
 
-	for	(uint8_t n=0;n<2;n++) {
-		for (int i = 0; i < 2; i++) {
-			led_on(BUZZER_PIN);
-			_delay_ms(30);
-			led_off(BUZZER_PIN);
-			_delay_ms(10);
+	#if defined(IS_SMOKE_ALARM)
+		led_on(BUZZER_PIN);
+		_delay_ms(50);
+		led_off(BUZZER_PIN);
+	#else
+		for	(uint8_t n=0;n<2;n++) {
+
+			for (int i = 0; i < 2; i++) {
+				led_on(BUZZER_PIN);
+				_delay_ms(30);
+				led_off(BUZZER_PIN);
+				_delay_ms(10);
+			}
+			_delay_ms(40);
 		}
-		_delay_ms(40);
-	}
+	#endif
 
 #else						// Otherwise we are using PWM
 	_setuptone();			// Set up the attiny to play tones

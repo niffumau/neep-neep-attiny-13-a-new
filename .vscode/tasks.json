@@ -1,0 +1,27 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+      {
+        "type": "shell",
+        "label": "Detect ATTiny13A Chip",
+        "command": "${workspaceFolder}/.pio/build/detect_chip/avrdude",  // Or full path to avrdude
+        "args": [
+          "-C", "${workspaceFolder}/.pio/packages/tool-avrdude/avrdude.conf",
+          "-p", "t13",
+          "-c", "usbasp",  // Your programmer
+          "-P", "usb",     // Your port from `pio device list`
+          "-v",
+          "-U", "signature:r:-:h"
+        ],
+        "group": "build",
+        "presentation": {
+          "echo": true,
+          "reveal": "always",
+          "focus": false,
+          "panel": "shared"
+        },
+        "problemMatcher": []
+      }
+    ]
+  }
+  
