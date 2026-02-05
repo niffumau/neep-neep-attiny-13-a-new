@@ -33,7 +33,7 @@ Smoke Alarm (BUZZER)
   - #define IS_SMOKE_ALARM
 
 
-## Installation
+## Installation/Programming
 
 I use VSCode. and the USBASP programmer.
 
