@@ -4,6 +4,14 @@ This is the one I am actually using for the ATtiny13a modules.
 
 The ATtiny13a has very limited to 1k flash so you can't fit a lot in it.
 
+## Hardware
+The hardware basically works on all the Neep Neep boards, https://gitlab.niffum.net/kicad/neepneep
+I need to change the URL for that to include kicad in the name.
+
+
+## Debugging
+I need to write this section but  some of the things:
+  - #define BEEP_EVERY_CYCLE
 
 ## Neep Neep Selection
 
@@ -13,7 +21,7 @@ There are two main variations:
 1.  Speaker
 2.  Buzzer
 
-### SPeaker Neep Neeps
+### Speaker Neep Neeps
 
 Speaker Neep Neeps
   - Don't have IS_BUZZER or IS_SMOKE_ALARM Defined
@@ -25,7 +33,7 @@ Smoke Alarm (BUZZER)
   - #define IS_SMOKE_ALARM
 
 
-## H2: Installation
+## Installation
 
 I use VSCode. and the USBASP programmer.
 
