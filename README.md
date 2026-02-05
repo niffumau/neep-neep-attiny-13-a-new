@@ -33,7 +33,10 @@ Smoke Alarm (BUZZER)
   - #define IS_SMOKE_ALARM
 
 
+
 ## Installation/Programming
+
+Programmer USBASP, i use a clip that 1.27mm(Single row), 6p
 
 I use VSCode. and the USBASP programmer.
 
