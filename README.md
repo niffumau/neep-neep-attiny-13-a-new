@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 ## General
 
 This is the one I am actually using for the ATtiny13a modules.
@@ -42,3 +43,7 @@ I use VSCode. and the USBASP programmer.
     In VSCode, the platformio button.  Go under attiny13a > General > Upload
 
 
+=======
+This is the one I am actually using
+just update to find where its saving it lol
+>>>>>>> 274b295f17839c0ad6675d788fd5085490006e19
