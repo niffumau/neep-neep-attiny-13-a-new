@@ -1,9 +1,10 @@
 pages:
   image: alpine:latest
   script:
-    - apt add --no-cache doxygen graphviz ttf-freefont
-    - doxygen Doxyfile
-    - mkdir -p public && mv html public/
+  - apt update && apk add doxygen
+  - doxygen Doxyfile
+  - mv documentation/html/ public/
+
   artifacts:
     paths:
       - public/
