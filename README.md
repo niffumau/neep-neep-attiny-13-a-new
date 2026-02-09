@@ -8,6 +8,8 @@ This is the one I am actually using for the ATtiny13a modules.
 
 The ATtiny13a has very limited to 1k flash so you can't fit a lot in it.
 
+The LED's are entirely optional, I put that in so you could visually see it was still doing something.
+
 I have since created a version with a flash chip so it can play samples but that is more complicated and expensive, these ones cost next to nothing so you can leave them in shopping centers, ubers, bus, work/etc and not really care that much.
 
 ## Hardware
@@ -36,6 +38,7 @@ The switches I generally use:
 
 The buzzer could be:
   - FUET-9650B-3V (LCSC C391032)
+
 The speaker i generally use is:
  - YS-SBZ9032C03R16 (LCSC C409828)
 
@@ -74,7 +77,7 @@ Programmer USBASP, i use a clip that 1.27mm(Single row), 6p
 I use VSCode. and the USBASP programmer.
 
 1.  Set the type of neep neep (see the section for that:
-    1.  Standard Speaker
+    1.  Standard Speaker, Currently plays 3 different tunes at random.
     2.  Buzzer
         1.  Neep Neep Buzzer
         2.  Smoke Alarm Buzzer
