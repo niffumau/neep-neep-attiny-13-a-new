@@ -1,5 +1,9 @@
 ## General
 
+This is essentially based on the idea of the original annoy-a-tron.
+
+This will work with either a speaker or buzzer.  With a speaker it can also play tunes.
+
 This is the one I am actually using for the ATtiny13a modules.
 
 The ATtiny13a has very limited to 1k flash so you can't fit a lot in it.
@@ -16,9 +20,22 @@ I beleive version 6 of the board, Version 6 you only have to populate the follow
   - R7, Q1, Buzzer
   - U1, Attiny13a-SSUR
 
+
 Or just use the V7 one which i took those out of.  The V6 version just has everything for debugging.
 
 I need to change the URL for the dev server that to include kicad in the name.
+
+The ATTiny13a:
+  - ATTINY13A-SSUR (LCSC C40382)
+
+The switches I generally use:
+  - TS342A2P-WZ (LCSC C557591)
+
+
+The buzzer could be:
+  - FUET-9650B-3V (LCSC C391032)
+The speaker i generally use is:
+ - YS-SBZ9032C03R16 (LCSC C409828)
 
 ## Debugging
 I need to write this section but  some of the things:
