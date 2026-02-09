@@ -5,9 +5,20 @@ This is the one I am actually using for the ATtiny13a modules.
 The ATtiny13a has very limited to 1k flash so you can't fit a lot in it.
 
 ## Hardware
-The hardware basically works on all the Neep Neep boards, https://gitlab.niffum.net/kicad/neepneep
-I need to change the URL for that to include kicad in the name.
+The hardware basically works on all the Neep Neep boards:
+  - https://gitlab.niffum.net/kicad/neepneep
+  - https://github.com/niffumau/NeepNeep-KiCAD
 
+I beleive version 6 of the board, Version 6 you only have to populate the following components:
+  - Battery holder
+  - C1, C2 (Power filter capacitors)
+  - R6 (reset line)
+  - R7, Q1, Buzzer
+  - U1, Attiny13a-SSUR
+
+Or just use the V7 one which i took those out of.  The V6 version just has everything for debugging.
+
+I need to change the URL for the dev server that to include kicad in the name.
 
 ## Debugging
 I need to write this section but  some of the things:
