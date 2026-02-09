@@ -8,6 +8,8 @@ This is the one I am actually using for the ATtiny13a modules.
 
 The ATtiny13a has very limited to 1k flash so you can't fit a lot in it.
 
+I have since created a version with a flash chip so it can play samples but that is more complicated and expensive, these ones cost next to nothing so you can leave them in shopping centers, ubers, bus, work/etc and not really care that much.
+
 ## Hardware
 The hardware basically works on all the Neep Neep boards:
   - https://gitlab.niffum.net/kicad/neepneep
