@@ -240,7 +240,6 @@ const uint8_t tune_test_rep[] PROGMEM = {
 
 
 void setup() {
-	// setup random shit
 	random_init(); // initialize 16 bit seed
 
 	pinMode(BUZZER_PIN, OUTPUT);
