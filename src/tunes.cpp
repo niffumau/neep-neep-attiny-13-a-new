@@ -27,6 +27,14 @@ const uint8_t tune_nokia_new[] PROGMEM = {
   NOTE_5B,2, NOTE_5A,2, NOTE_5CS,4, NOTE_5E,4, NOTE_5A,4
 };
 
+const uint8_t tune_nokia_rep[] PROGMEM = {
+  (uint8_t) 13,
+  NOTE_6E,1, NOTE_6D,1, NOTE_5FS,2, NOTE_5GS,1,
+  NOTE_6CS,1, NOTE_5B,1, NOTE_5D,2, NOTE_5E,1,
+  NOTE_5B,1, NOTE_5A,1, NOTE_5CS,2, NOTE_5E,2, NOTE_5A,2
+};
+
+
 /**
  * @brief SMS Notification Tune (8 notes) - Triplet + dotted rhythm.
  *
@@ -77,13 +85,7 @@ const tune_t tune_new PROGMEM = {
   .notes = { {NOTE_5A,1}, {NOTE_5A,1}, {NOTE_5A,1}, {NOTE_5A,1},}
 };
 
-const uint8_t tune_nokia_rep[] PROGMEM = {
-  (uint8_t) 13,
-  NOTE_6E,1, NOTE_6D,1, NOTE_5FS,2, NOTE_5GS,1,
-  NOTE_6CS,1, NOTE_5B,1, NOTE_5D,2, NOTE_5E,1,
-  NOTE_5B,1, NOTE_5A,1, NOTE_5CS,2, NOTE_5E,2, NOTE_5A,2
 
-};
 
 
 
@@ -168,15 +170,31 @@ void play_note(uint8_t _note, uint8_t _duration) {
  *  
  *   
  */
+
+/**
+ * @brief Plays complete chromatic scale across 3 octaves for testing.
+ *
+ * Plays all 12 semitones of each octave (3, 4, 5) using quarter-note duration.
+ * Used for tone generator testing and frequency verification.
+ * Visual feedback shows current octave via LED status.
+ *
+ * @details Plays: C3→C#3→D3→...→B5 (36 total notes)
+ *          Each note: quarter-note duration (2 in play_note scale)
+ *          Octave pause: 160ms (`_mydelay(4)`)
+ *
+ * @note Total duration: ~20 seconds depending on note timing implementation.
+ * @see play_note(), led_status(), _mydelay()
+ */
 void playtune_scale(void) {
 
 	for (uint8_t octave=3; octave <= 5; octave++) {
-		led_status(1,octave);
+		led_status(1,octave);				///< Show current octave (3,4,5)
 		for	(uint8_t i=0; i < 12; i++) {
-			uint8_t note = octave*12+i;
-			play_note(note,2);
+			uint8_t note = octave*12+i;		///< Chromatic: C→C#→D→...→B (0-11).
+			play_note(note,2);				///< Play quarter-note (duration=2)
 		}
-		_mydelay(4);
+		//_mydelay(4);						///< 160ms pause between octaves
+		_delay_ms(160);  					///< 4*40ms=160ms paus between octaves
 	}
 }
 

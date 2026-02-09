@@ -6,7 +6,16 @@ This will work with either a speaker or buzzer.  With a speaker it can also play
 
 This is the one I am actually using for the ATtiny13a modules.
 
-The ATtiny13a has very limited to 1k flash so you can't fit a lot in it.
+The ATtiny13a has very limited to 1k flash so you can't fit a lot in it.  A good exmple is my current compile:
+```
+Checking size .pio\build\attiny13a\firmware.elf
+Advanced Memory Usage is available via "PlatformIO Home > Project Inspect"
+RAM:   [=======   ]  71.9% (used 46 bytes from 64 bytes)
+Flash: [==========]  99.8% (used 1022 bytes from 1024 bytes)
+```
+So in the tune version with 3 tunes I have 2 bytes free...
+
+
 
 The LED's are entirely optional, I put that in so you could visually see it was still doing something.
 

@@ -288,14 +288,6 @@ void _playtones(void){
 
 const uint8_t _checkvariable PROGMEM = 5;
 
-const uint8_t tune_test_rep[] PROGMEM = {
-  (uint8_t) 2,
-  NOTE_6E,1, NOTE_6D,1, NOTE_5FS,2, NOTE_5GS,1,
-  NOTE_6CS,1, NOTE_5B,1, NOTE_5D,2, NOTE_5E,1,
-  NOTE_5B,1, NOTE_5A,1, NOTE_5CS,2, NOTE_5E,2, NOTE_5A,2
-
-};
-
 
 void setup() {
 	random_init(); // initialize 16 bit seed
