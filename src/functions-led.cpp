@@ -59,8 +59,9 @@ void led_setup(void){
 void led_toggle(uint8_t _PIN){
   //PORTB ^= _BV(LED_PIN2);  // toggle LED pin		//_BV returns the byte value of some shit
   PORTB ^= _BV(_PIN);  ///< Toggle specified bit on Port B, ie toggle LED pin. _BV returns the byte value of some shit 
-
 }
+
+
 /***************************************************
  *  led_on
  ***************************************************

@@ -12,7 +12,14 @@ const uint8_t divisors[] = {142,134,127,120,113,106,100,95,89,84,79,75,71,67,63,
 
 
 
-
+/**
+ * @brief Nokia Connect Tune (13 notes) - Classic startup melody.
+ *
+ * PROGMEM melody data for Nokia phone startup sound.
+ * Format: `[length, note1,duration1, note2,duration2, ...]`
+ *
+ * @note Uses standard musical notation constants (NOTE_6E, etc.)
+ */
 const uint8_t tune_nokia_new[] PROGMEM = {
   (uint8_t) 13,
   NOTE_6E,2, NOTE_6D,2, NOTE_5FS,4, NOTE_5GS,2,
@@ -20,7 +27,12 @@ const uint8_t tune_nokia_new[] PROGMEM = {
   NOTE_5B,2, NOTE_5A,2, NOTE_5CS,4, NOTE_5E,4, NOTE_5A,4
 };
 
-
+/**
+ * @brief SMS Notification Tune (8 notes) - Triplet + dotted rhythm.
+ *
+ * PROGMEM melody data for SMS-style notification.
+ * Distinctive "beep-beep-beep... beep-beep-beep" pattern.
+ */
 const uint8_t tune_sms_new[] PROGMEM = {
   (uint8_t) 8,
   NOTE_5A,2, NOTE_5A,2, NOTE_5A,2,
@@ -28,6 +40,12 @@ const uint8_t tune_sms_new[] PROGMEM = {
   NOTE_5A,2, NOTE_5A,2, NOTE_5A,2
 };
 
+/**
+ * @brief iPhone-style Notification Tune (26 notes) - Marimba-like.
+ *
+ * PROGMEM melody data for iPhone notification sound.
+ * Complex rhythm with characteristic G→A♯→C progression.
+ */
 const uint8_t tune_iphone_new[] PROGMEM = {
   (uint8_t) 26,
 	NOTE_4G,4, NOTE_4G,2, NOTE_4AS,2, NOTE_5C,2,
