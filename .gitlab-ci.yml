@@ -1,0 +1,11 @@
+pages:
+  image: alpine
+  script:
+    - apk add doxygen graphviz ttf-freefont
+    - doxygen Doxyfile
+    - mv docs/html public/
+  artifacts:
+    paths:
+      - public/
+  only:
+    - main

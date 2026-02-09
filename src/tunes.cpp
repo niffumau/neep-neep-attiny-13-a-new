@@ -81,28 +81,42 @@ const tune_t tune_new2 = {
 
 
 
-#ifndef IS_BUZZER		
-/***************************************************
- *  play_note
- ***************************************************
- *   I am not really sure how this is going to pan out
- *   I'll start by trying to work out what the frequency of the note is
- *   https://pages.mtu.edu/~suits/NoteFreqCalcs.html
- */
-	// 9.6MHz internal oscilator... lol, no, i think this is 1.2MHz for the ATTiny13a
+#ifndef IS_BUZZER
 
+/**
+ * @brief Generates a musical note on the buzzer using Timer0 PWM at 1.2MHz ATTiny13A clock.
+ *
+ * Plays a single note by configuring Timer0 for Fast PWM mode with hardware-generated
+ * square wave output on OC0B (likely PB4). Note frequencies span ~3 octaves using 3
+ * prescalers (N256, N64, N8) and a precomputed divisors table. Duration controls total
+ * note time (on + off). Based on note frequency calculations from Suits' formula.
+ *
+ * @param _note Note index (0-83): Maps to frequencies from ~65Hz (C3) to ~4186Hz (C9).
+ *              - 0-23: N256 prescaler, divisors[0-23]
+ *              - 24-59: N64 prescaler, divisors[0-35] 
+ *              - 60-83: N8 prescaler, divisors[0-23]
+ *              Uses global `divisors[]` table (presumably pgm_read_byte() accessible).
+ *
+ * @param _duration Duration value passed to _mydelay() for note on/off timing.
+ *
+ * @pre Requires:
+ *      - Global `uint8_t divisors[84]` array with precomputed OCR values
+ *      - `#define N_256 (CS02|CS00)`, `#define N_64 (CS01|CS00)`, `#define N_8 CS00`
+ *      - Timer0 preset to Fast PWM mode: `TCCR0A = _BV(COM0B0) | _BV(WGM01) | _BV(WGM00)`
+ *      - `BUZZER_PIN` defined and configured as output
+ *      - `_mydelay()` blocking delay function
+ *
+ * @note 50% duty cycle via OCR0B = OCR0A/2. Silences timer + pin after note.
+ * @note Commented bounds checks suggest original 0-83 range validation.
+ * @note 1.2MHz clock yields coarse resolution for high notes (N8 max ~15kHz).
+ *
+ * @warning No frequency silencing (note=0). Direct timer manipulation—callers must not
+ *          interfere with Timer0 during playback. Global side effects on TCCR0A/B, OCR0A/B.
+ */
 void play_note(uint8_t _note, uint8_t _duration) {
 	uint8_t _prescaler;
 	uint8_t divisor;
 	
-	/*
-	if (_note < 0)  {
-		led_status(4,2);
-	}
-	if (_note > 83)  {
-		led_status(4,3);
-	}*/
-
 	if (_note <  24) {		// Work out the prescaler
 		_prescaler = N_256;
 		divisor = divisors[_note];
@@ -166,10 +180,22 @@ void playtune_melody(const notes_t *melody,uint8_t _size) {
 	}
 }
 
-/*void playtune_melody_new(const notes_t *melody,uint8_t _size) {
-    playtune_melody_new(&melody);
-}*/
-
+/**
+ * @brief Plays a complete melody stored in PROGMEM using note/duration pairs.
+ *
+ * This function reads a compact melody format from flash memory (PROGMEM) and plays
+ * each note sequentially. The melody data starts with a length byte followed by
+ * note-duration pairs (2 bytes each: note, duration). Notes are frequency values
+ * suitable for play_note(), durations control note length/timing.
+ *
+ * @param melody Pointer to PROGMEM array containing melody data.
+ *               Format: `[length, note1, duration1, note2, duration2, ...]`
+ *               - melody[0] = number of notes (uint8_t)
+ *               - melody[1+2*i] = note frequency (uint8_t) for note i
+ *               - melody[2+2*i] = duration (uint8_t) for note i
+ *
+ * @warning No error checking on length or buffer bounds—caller must ensure valid data.
+ */
 void playtune_melody_new(const uint8_t *melody) {
 	uint8_t _length = pgm_read_byte(&melody[0]);
 	//led_status(4,_length);  return;   // debug  
