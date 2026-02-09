@@ -39,6 +39,9 @@ The buzzer could be:
 The speaker i generally use is:
  - YS-SBZ9032C03R16 (LCSC C409828)
 
+![NeepNeep-ATtiny13a-V6](NeepNeep-ATTINY13a-V6.png)
+
+
 ## Debugging
 I need to write this section but  some of the things:
   - #define BEEP_EVERY_CYCLE
