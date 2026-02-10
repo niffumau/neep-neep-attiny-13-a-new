@@ -1,7 +1,6 @@
 #ifndef MAIN_H
 #define MAIN_H
 
-
 // includes
 #include <Arduino.h>
 #include <avr/io.h>
