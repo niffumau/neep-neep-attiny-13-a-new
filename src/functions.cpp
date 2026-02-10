@@ -1,24 +1,39 @@
+/**
+ * @file functions.cpp
+ * @brief Core utility functions for the ATtiny13A low‑power notifier.
+ *
+ * This file provides:
+ * - A coarse, 40‑ms‑block delay function `_mydelay()` for non‑timing‑critical delays.
+ * - A 16‑bit linear‑feedback‑shift‑register (LFSR) random‑number generator that seeds
+ *   from analog noise on a hardware pin (`PIN_RANDOM`).
+ * - A wrapper `_random(min, max)` for generating uniformly distributed integers in a given
+ *   range, re‑seeding on every call from the analog input.
+ * - A debug helper `check_random()` that flags values outside expected sleep‑count bounds
+ *   using LED status indicators.
+ *
+ * These utilities are used by:
+ * - The main sleep‑and‑notify loop (`main.cpp`)
+ * - Tone and LED control routines (`functions‑led.h`, `functions‑sleep.h`)
+ *
+ * @note
+ *   - `_mydelay()` uses blocking `_delay_ms()` and so hangs the CPU for its duration,
+ *     but does not prevent watchdog or other hardware interrupts from firing.
+ *   - The random generator intentionally avoids `srand()`‑style software seeding
+ *     and relies on analog noise for entropy; randomness quality is adequate for
+ *     periodic wakeup intervals but may not be suitable for cryptographic use.
+ *   - `check_random()` is designed as an optional debug aid: it does nothing unless
+ *     the project is compiled with appropriate debug LED/status helpers enabled.
+ *
+ * @see main.cpp, functions‑sleep.h, functions‑led.h, main.h
+ */
+
 ////// Includes //////////
 #include "Arduino.h"
-
-//#include <avr/io.h>
-//#define __DELAY_BACKWARD_COMPATIBLE__
-//#include <util/delay.h>
-
-//#include <avr/interrupt.h>
-//#include <avr/pgmspace.h>
-
-//#include <avr/interrupt.h>
-
-//#include <avr/power.h>
-//#include <avr/sleep.h>
-
 
 #include "main.h"
 #include "functions.h"
 #include "functions-led.h"
 #include "functions-sleep.h"
-
 
 
 
