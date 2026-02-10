@@ -58,6 +58,12 @@ The speaker i generally use is:
  - YS-SBZ9032C03R16 (LCSC C409828)
 
 
+The transistor thing TRANS NPN 40V 200mA SOT-23
+  - MMBT3904(RANGE:100-300) (LCSC C20526 or C91032 apparently???)
+
+But i think that a mosfet would be better:
+  -  BSS138
+
 
 ![NeepNeep-ATtiny13a-V6](NeepNeep-ATTINY13a-V6.png)
 

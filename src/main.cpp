@@ -1,15 +1,33 @@
-/*
+/**
+ * @file main.cpp
+ * @brief Main application for ATtiny13A watchdog‑based low‑power notifier.
  *
- * 
- * https://github.com/pedroliska/ATtiny85/blob/master/watchdog-wake/watchdog-wake.ino
- * 
- * 
- * Power Draw:
- * on my multimeter it appears to draw max of 27.8mA when making noise
- * maybe 10mA when it wakes up and less than 10mA when asleep.
- *  
+ * This file implements:
+ * - A low‑power ATtiny13A program that spends most of its time sleeping
+ *   and wakes periodically via the watchdog timer.
+ * - Notification behaviour using either:
+ *   - A physical buzzer or smoke‑alarm‑style output, or
+ *   - PWM‑driven tones (via Timer0) using predefined melodies.
+ * - LED status feedback during startup and melody selection.
+ *
+ * The device alternates between short bursts of activity (tones / LED blinks)
+ * and long sleep intervals (configurable via #define or randomization). Power
+ * is kept very low during sleep; measured draw is approximately:
+ * - 27.8 mA maximum when the buzzer is active and sounding,
+ * - around 10 mA during wake‑up bursts,
+ * - less than 10 mA when actually asleep.
+ *
+ * @note
+ *   - Uses watchdog‑interrupt‑based `system_sleep(SLEEP_8SEC)` to enter low‑power
+ *     mode and wake the device periodically.
+ *   - The interval between tone notifications is controlled by either:
+ *     - `FIXED_INTERVAL` (if defined), or
+ *     - a randomized range scaled by `RANDOM_SLEEP_MIN`, `RANDOM_SLEEP_MAX`
+ *       and `SLEEP_FACTOR`.
+ *   - Melody selection is handled in `_playtones()` using `tunes.h`.
+ *
+ * @see main.h, functions‑sleep.h, functions‑led.h, functions.h, tunes.h
  */
-
 
 
 #include <Arduino.h>
@@ -39,35 +57,9 @@
 #include "functions.h"
 #include "tunes.h"
 
-//int REGULAR_HI_MS = 100;        // was 800
-//int WAKE_INDICATOR_HI_MS = 0; //200;
-//int INITIAL_BEEP_COUNT = 3;   // number of "test" beeps before we go into the real loop
-
 
 long countSleep=0;
 long countSleepLimit=0;
-
-
-
-/* We then just need a table of divisors for the notes within one octave. To calculate the divisor for a given note frequency we first work out:
-
-divisor = clock / frequency
-
-For example, C4 (middle C) is 261.63Hz, so we get:
-
-divisor = 1000000 / 261.63
-
-in our case thats
-divisor = 1 200 000 / 261.63 = 4586.62
-but thats way more than 256, so divide by 2
-4586.62 / 2 = 2293.3 
-too large, divide by 2 again
-1146, too large again, divide by 2
-too large..
-options are 1, 8, 64,
-divide by 8, and its 71.6
-*/
-
 
 
 /*******************************************************************************************************************************
@@ -268,13 +260,13 @@ void _playtones(void){
 
 	/* Melody selection logic: Nokia(0-1), iPhone(2-4), SMS(5-6) */
 	if (decision < 2 ) 
-		playtune_melody_new(tune_nokia_new);		/**< Nokia tune. */
+		playtune_melody_new(tune_nokia_new);		///< Nokia tune. 
 	else if (decision < 5) 
-		playtune_melody_new(tune_iphone_new);		/**< iPhone tune. */
+		playtune_melody_new(tune_iphone_new);		///< iPhone tune. 
 	else 
-		playtune_melody_new(tune_sms_new);			/**< SMS tune. */
+		playtune_melody_new(tune_sms_new);			///< SMS tune. 
 
-	stop();											/**< Silence and reset timer. */
+	stop();											///< Stop the tones, ie Silence and reset timer
 
 #endif
 
@@ -290,23 +282,12 @@ const uint8_t _checkvariable PROGMEM = 5;
 
 
 void setup() {
-	random_init(); // initialize 16 bit seed
-
-	pinMode(BUZZER_PIN, OUTPUT);
-
-	led_setup();
-	led_status(1,1);
-
-
-	// check reading a single value
-//	uint8_t _length = pgm_read_byte(&tune_test_rep);
-	//uint8_t _length = pgm_read_byte(&_checkvariable);	// WORKS
-//	led_status(2,_length);  return;   // debug
-
-
-	_playtones();
-	stop();
-
+	random_init(); 					///< initialize 16 bit seed
+	pinMode(BUZZER_PIN, OUTPUT);	///< Set BUZZER_PIN mode to OUTPUT
+	led_setup();					///< Setup the LED
+	led_status(1,1);				///< blink the Red Led once then the green LED Once
+	_playtones();					///< Play some tones at the end of the setup() function
+	stop();							///< Stop all tones
 }
 
 
@@ -316,28 +297,28 @@ void setup() {
 
 void loop() {
 
-	led_blink(LED_GREEN,1);
+	led_blink(LED_GREEN,1);				///< Every time around the loop, blink the green LED once.
 
 #ifdef BEEP_EVERY_CYCLE
-	countSleep = countSleepLimit;
+	countSleep = countSleepLimit;		///< If BEEP_EVERY_CYCLE defined, beep every cycle...
 #else
 	countSleep++;
 #endif
 
 	if ( !(countSleep < countSleepLimit) )	{
-		if (countSleepLimit != 0) {		// if its not our first run
-			_playtones();
+		if (countSleepLimit != 0) {		///< if its not our first run
+			_playtones();				///< Play tones
 		} else {
-			//led_status(1,2);
+			//led_status(1,2);			
 		}
 
-		countSleep = 0;	// reset countsleep
+		countSleep = 0;					///< reset countsleep
 #ifdef FIXED_INTERVAL
 		countSleepLimit = FIXED_INTERVAL
 #else
 		countSleepLimit = _random( RANDOM_SLEEP_MIN*SLEEP_FACTOR, RANDOM_SLEEP_MAX*SLEEP_FACTOR + 1) ;
 #endif
-		//check_random(countSleepLimit);
+		//check_random(countSleepLimit); // This is just a debug to check the random count
 	}
 
 	system_sleep(SLEEP_8SEC);

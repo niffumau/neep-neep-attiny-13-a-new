@@ -1,3 +1,22 @@
+/**
+ * @file tunes.h (or tunes.c / tunes.cpp)
+ * @brief Melody and note‑playback definitions for the ATtiny85 sound project.
+ *
+ * This module provides:
+ * - Named PROGMEM melody data arrays (`tune_nokia_new`, `tune_sms_new`, `tune_iphone_new`).
+ * - A generic tone‑generation function `play_note()` that uses Timer0 PWM.
+ * - Helper functions to play predefined melodies and sequences.
+ *
+ * Tone mapping is done via an external notes table (e.g., `notes.h`),
+ * where note constants `NOTE_4C`, `NOTE_5AS`, etc. index into the divisor table.
+ *
+ * @note Delay functions such as `_mydelay()` or `_delay_ms()` are assumed available
+ *       from other project files; callers must ensure Timer0 is appropriately
+ *       configured for Fast PWM before using these functions.
+ *
+ * @see notes.h, main.h, functions‑led.h, functions.h
+ */
+
 ////// Includes //////////
 #include "Arduino.h"
 

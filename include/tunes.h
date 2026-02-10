@@ -2,6 +2,7 @@
 #define TUNES_H
 
 #include "main.h"
+#include "notes.h"
 
 /*
 typedef struct s_notes {
