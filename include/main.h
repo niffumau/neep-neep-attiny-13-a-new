@@ -24,17 +24,35 @@
 //#define BEEP_EVERY_CYCLE				////////////////////////////////////////////////////////////////////////////////////////////
 
 
-#define CHIRPS                      3       // Number of chirps
 
 #define DUTY_CYCLE                  50
 
+/**
+ * @def FIXED_INTERVAL
+ * @brief Sets a constant number of watchdog sleep cycles between tone notifications.
+ *
+ * When this macro is defined, the main loop uses a fixed sleep interval
+ * instead of a random delay range, by assigning `countSleepLimit` to this
+ * constant value after each notification cycle. [web:14]
+ *
+ * @note Each increment of `countSleep` corresponds to one watchdog sleep
+ *       period (configured with `system_sleep(SLEEP_8SEC)`), so the actual
+ *       elapsed time is `FIXED_INTERVAL` multiplied by the watchdog interval. 
+ */
 //#define FIXED_INTERVAL              2
 
-// pins
-#define	BUZZER_PIN	                PB1
-#define LED_RED  	                PB4
-#define LED_GREEN	                PB0 
-#define PIN_RANDOM					PB5
+
+/**
+ * @defgroup pin_macros Pin Configuration Macros
+ * @brief ATtiny85 GPIO pin assignments used in the project.
+ * @{
+ */
+#define	BUZZER_PIN	                PB1		//< I/O pin connected to the buzzer / alarm output (PB1).
+#define LED_RED  	                PB4		//< I/O pin driving the red LED indicator (PB4)
+#define LED_GREEN	                PB0 	//< I/O pin driving the green LED indicator (PB0)
+#define PIN_RANDOM					PB5		//< ADC / random‑seed input pin (PB5).
+/** @} */
+
 
 #define BLINK_INTERVAL_ON 			100		//ms
 #define BLINK_INTERVAL_OFF 			100		//ms
@@ -60,6 +78,14 @@
 
 
 
+
+
+// Check that if FIXED_INTERVAL is actually set, it is set to a value 1 or greater.
+#ifdef FIXED_INTERVAL
+  #if (FIXED_INTERVAL) < 1
+    #error "FIXED_INTERVAL must be at least 1 watchdog sleep cycles"
+  #endif
+#endif
 
 
 

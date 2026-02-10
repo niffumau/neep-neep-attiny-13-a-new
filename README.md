@@ -26,6 +26,12 @@ The hardware basically works on all the Neep Neep boards:
   - https://gitlab.niffum.net/kicad/neepneep
   - https://github.com/niffumau/NeepNeep-KiCAD
 
+The pin configuration is:
+    #define	BUZZER_PIN          PB1
+    #define LED_RED  	          PB4
+    #define LED_GREEN	          PB0 
+    #define PIN_RANDOM					PB5
+
 I beleive version 6 of the board, Version 6 you only have to populate the following components:
   - Battery holder
   - C1, C2 (Power filter capacitors)
@@ -50,6 +56,8 @@ The buzzer could be:
 
 The speaker i generally use is:
  - YS-SBZ9032C03R16 (LCSC C409828)
+
+
 
 ![NeepNeep-ATtiny13a-V6](NeepNeep-ATTINY13a-V6.png)
 
