@@ -117,7 +117,7 @@ void random_init(void) {
  * @see random_init(), lfsr16_next()
  */
 uint16_t _random( uint16_t _min, uint16_t _max) {
-	random_init();		/**< Re-seed from analog noise every call. */
+	random_init();		///< Re-seed from analog noise every call. 
 	uint16_t _return=0;
 guessagain:;
 	//remainder = dividend % divisor;
