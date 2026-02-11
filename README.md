@@ -30,10 +30,12 @@ The hardware basically works on all the Neep Neep boards:
   - https://github.com/niffumau/NeepNeep-KiCAD
 
 The pin configuration is:
+```c
     #define	BUZZER_PIN          PB1
     #define LED_RED  	          PB4
     #define LED_GREEN	          PB0 
     #define PIN_RANDOM					PB5
+```
 
 I beleive version 6 of the board, Version 6 you only have to populate the following components:
   - Battery holder
