@@ -1,3 +1,6 @@
+
+[[_TOC_]]
+
 ## General
 
 This is essentially based on the idea of the original annoy-a-tron.
