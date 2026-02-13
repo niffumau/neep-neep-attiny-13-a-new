@@ -53,7 +53,9 @@
 #define BLINK_INTERVAL_STATUS_END	200		///< ms
 
 /// The interval that we count in.
-/// @note I had it written here that this should be 8, no idea why?
+/// In the calculation, it uses this factor times by the WDT sleep interval, which is 8 seconds. 
+/// So this would be 7 times 8 seconds, which is 56 seconds which is close to 1 minute.
+/// @note I had it written here that this should be 8, no idea why? I think its because its larger than 1 minute
 #define SLEEP_FACTOR 7						
 
 
@@ -66,12 +68,6 @@
     #error "FIXED_INTERVAL must be at least 1 watchdog sleep cycles"
   #endif
 #endif
-
-
-
-
-// I think those are wrong.. (_BV(CS01)|_BV(CS00))
-
 
 
 #define	N_1	(_BV(CS00))                 // No Prescaling

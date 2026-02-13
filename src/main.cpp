@@ -295,6 +295,40 @@ void setup() {
  *  LOOP  LOOP  LOOP  LOOP  LOOP  LOOP  LOOP  LOOP  LOOP  LOOP  LOOP  LOOP  LOOP  LOOP  LOOP  LOOP  LOOP  LOOP  LOOP  LOOP  LOOP
  *******************************************************************************************************************************/
 
+ /**
+ * @brief Main loop implementing randomized sleep/beep cycles for low-power operation.
+ *
+ * Executes continuously after `setup()`. Each iteration:
+ * 1. Blinks green status LED
+ * 2. Increments sleep counter (`countSleep`) unless `BEEP_EVERY_CYCLE` forces immediate beeps
+ * 3. When `countSleep >= countSleepLimit`:
+ *    - Plays notification tones (except first run)
+ *    - Resets counter and picks new random interval
+ * 4. Sleeps for exactly 8 seconds via `system_sleep(SLEEP_8SEC)`
+ *
+ * **Sleep timing calculation:**
+ * ```
+ * Total sleep = random(RANDOM_SLEEP_MIN×SLEEP_FACTOR, RANDOM_SLEEP_MAX×SLEEP_FACTOR+1) × 8 seconds
+ * Example: SLEEP_FACTOR=10 → 80s to 720s (1.3-12 minutes) intervals
+ * ```
+ *
+ * @details
+ * The convoluted `if (!(countSleep < countSleepLimit))` is equivalent to `if (countSleep >= countSleepLimit)`.
+ * 
+ * **First run behavior:** `countSleepLimit=0` initially, so no tones play until after first sleep cycle.
+ *
+ * **Configuration modes:**
+ * | Mode | Behavior |
+ * |------|----------|
+ * | `BEEP_EVERY_CYCLE` | Beeps every wake-up (no counting) |
+ * | `FIXED_INTERVAL` | Fixed sleep cycles between beeps |
+ * | Default | Random intervals via `SLEEP_FACTOR` scaling |
+ *
+ * @warning Each `system_sleep(SLEEP_8SEC)` blocks for **exactly 8 seconds** regardless of active time.
+ * Total cycle time = (sleep cycles × 8s) + (~2s melody time).
+ *
+ * @see system_sleep(), _playtones(), _random(), led_blink()
+ */
 void loop() {
 
 	led_blink(LED_GREEN,1);				///< Every time around the loop, blink the green LED once.
@@ -316,11 +350,13 @@ void loop() {
 #ifdef FIXED_INTERVAL
 		countSleepLimit = FIXED_INTERVAL
 #else
-		countSleepLimit = _random( RANDOM_SLEEP_MIN*SLEEP_FACTOR, RANDOM_SLEEP_MAX*SLEEP_FACTOR + 1) ;
+		countSleepLimit = _random( RANDOM_SLEEP_MIN*SLEEP_FACTOR, 
+									RANDOM_SLEEP_MAX*SLEEP_FACTOR + 1) ;
+									///< New Random Interval: [min×factor, max×factor+1] cycles
 #endif
-		//check_random(countSleepLimit); // This is just a debug to check the random count
+		//check_random(countSleepLimit); ///< Debug: This is just a debug to check the random count
 	}
 
-	system_sleep(SLEEP_8SEC);
+	system_sleep(SLEEP_8SEC);			///< Sleep 8s, wake via WDT interrupt
 	
 }
